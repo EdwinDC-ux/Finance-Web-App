@@ -4,7 +4,7 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - ./:/var/www/html  # <-- Cambio clave: Mapeamos todo el proyecto
+      - ./:/var/www/html
     depends_on:
       - db
 
@@ -13,10 +13,10 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: root_super_secreto
-      MYSQL_DATABASE: finance_db
-      MYSQL_USER: app_user
-      MYSQL_PASSWORD: app_password
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
     volumes:
       - db_data:/var/lib/mysql
       - ./db_init:/docker-entrypoint-initdb.d
