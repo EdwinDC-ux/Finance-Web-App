@@ -1,26 +1,22 @@
 <?php
-// Archivo: public/api.php
-header('Content-Type: application/json');
+// Archivo: public/index.php
 
-// 1. Cargamos el Autoloader de Composer
 require_once __DIR__ . '/../vendor/autoload.php';
 
-// 2. Usamos el Namespace
-use App\Controllers\AccountController;
+// 1. Cargar variables de entorno
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->load();
 
-try {
-    // 3. Instanciamos el controlador y pedimos los datos
-    $controller = new AccountController();
-    $cuentas = $controller->getAllAccounts();
+// 2. Inicializar el Router
+$router = new \Bramus\Router\Router();
 
-    echo json_encode([
-        "status" => "success",
-        "data" => $cuentas
-    ]);
+// 3. Definir las Rutas (Endpoints)
+$router->get('/', function() {
+    echo "Bienvenido a la API de FinanceApp";
+});
 
-} catch (\Exception $e) {
-    echo json_encode([
-        "status" => "error",
-        "message" => $e->getMessage()
-    ]);
-}
+// Ruta RESTful para obtener cuentas
+$router->get('/api/accounts', '\App\Controllers\AccountController@getAllAccounts');
+
+// 4. Ejecutar el Router
+$router->run();
