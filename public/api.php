@@ -1,31 +1,26 @@
 <?php
+// Archivo: public/api.php
 header('Content-Type: application/json');
 
-// ¡EL SECRETO DE DOCKER! El host no es localhost, es el nombre del servicio en el YAML
-$host = 'db'; 
-$dbname = 'finance_db';
-$user = 'app_user';
-$pass = 'app_password';
+// 1. Cargamos el Autoloader de Composer
+require_once __DIR__ . '/../vendor/autoload.php';
+
+// 2. Usamos el Namespace
+use App\Controllers\AccountController;
 
 try {
-    $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
-    $pdo = new PDO($dsn, $user, $pass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-    ]);
-
-    // Hacemos una consulta de prueba
-    $stmt = $pdo->query("SELECT * FROM accounts");
-    $cuentas = $stmt->fetchAll();
+    // 3. Instanciamos el controlador y pedimos los datos
+    $controller = new AccountController();
+    $cuentas = $controller->getAllAccounts();
 
     echo json_encode([
         "status" => "success",
         "data" => $cuentas
     ]);
 
-} catch (PDOException $e) {
+} catch (\Exception $e) {
     echo json_encode([
         "status" => "error",
-        "message" => "Error de conexión: " . $e->getMessage()
+        "message" => $e->getMessage()
     ]);
 }
