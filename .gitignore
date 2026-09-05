@@ -1,0 +1,13 @@
+# Dependencias de PHP y Node
+/vendor/
+/node_modules/
+
+# Archivos de entorno (Secretos)
+.env
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Si en el futuro mapeas la base de datos a una carpeta local, ignórala
+/db_data/
