@@ -1,0 +1,9 @@
+{
+    "name": "edwin/finance-app",
+    "description": "App financiera con arquitectura profesional",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    }
+}
