@@ -1,60 +1,92 @@
-import './style.css'
-import heroImg from './assets/hero.png'
-import typescriptLogo from './assets/typescript.svg'
-import viteLogo from './assets/vite.svg'
-import { setupCounter } from './counter.ts'
+import './style.css';
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-<section id="center">
-  <div class="hero">
-    <img src="${heroImg}" class="base" width="170" height="179">
-    <img src="${typescriptLogo}" class="framework" alt="TypeScript logo"/>
-    <img src="${viteLogo}" class="vite" alt="Vite logo" />
-  </div>
-  <div>
-    <h1>Get started</h1>
-    <p>Edit <code>src/main.ts</code> and save to test <code>HMR</code></p>
-  </div>
-  <button id="counter" type="button" class="counter"></button>
-</section>
+// 1. EL CONTRATO (Interface)
+interface Account {
+  id: number;
+  name: string;
+  balance: string;
+}
 
-<div class="ticks"></div>
+// 2. REFERENCIAS AL DOM (Como el $('#id') de jQuery, pero tipado)
+const accountsContainer = document.querySelector<HTMLDivElement>('#accounts-container')!;
+const form = document.querySelector<HTMLFormElement>('#transfer-form')!;
+const originSelect = document.querySelector<HTMLSelectElement>('#origin')!;
+const destSelect = document.querySelector<HTMLSelectElement>('#destination')!;
+const amountInput = document.querySelector<HTMLInputElement>('#amount')!;
 
-<section id="next-steps">
-  <div id="docs">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#documentation-icon"></use></svg>
-    <h2>Documentation</h2>
-    <p>Your questions, answered</p>
-    <ul>
-      <li>
-        <a href="https://vite.dev/" target="_blank">
-          <img class="logo" src="${viteLogo}" alt="" />
-          Explore Vite
-        </a>
-      </li>
-      <li>
-        <a href="https://www.typescriptlang.org" target="_blank">
-          <img class="button-icon" src="${typescriptLogo}" alt="">
-          Learn more
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#social-icon"></use></svg>
-    <h2>Connect with us</h2>
-    <p>Join the Vite community</p>
-    <ul>
-      <li><a href="https://github.com/vitejs/vite" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#github-icon"></use></svg>GitHub</a></li>
-      <li><a href="https://chat.vite.dev/" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#discord-icon"></use></svg>Discord</a></li>
-      <li><a href="https://x.com/vite_js" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#x-icon"></use></svg>X.com</a></li>
-      <li><a href="https://bsky.app/profile/vite.dev" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#bluesky-icon"></use></svg>Bluesky</a></li>
-    </ul>
-  </div>
-</section>
+// 3. FUNCIÓN PARA CARGAR DATOS (GET)
+async function loadAccounts() {
+  try {
+    const response = await fetch('/api/accounts');
+    const result = await response.json();
 
-<div class="ticks"></div>
-<section id="spacer"></section>
-`
+    if (result.status === 'success') {
+      renderAccounts(result.data);
+      populateSelects(result.data);
+    }
+  } catch (error) {
+    console.error("Error de red:", error);
+  }
+}
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+// 4. PINTAR LA TABLA
+function renderAccounts(accounts: Account[]) {
+  let html = `<table border="1" cellpadding="10" style="border-collapse: collapse; width: 100%; max-width: 500px;">
+    <tr style="background: #eee;"><th>Cuenta</th><th>Saldo</th></tr>`;
+  
+  accounts.forEach(acc => {
+    html += `<tr>
+      <td>${acc.name}</td>
+      <td style="text-align: right;">$${parseFloat(acc.balance).toLocaleString('es-MX')}</td>
+    </tr>`;
+  });
+  
+  html += `</table>`;
+  accountsContainer.innerHTML = html;
+}
+
+// 5. LLENAR LOS SELECTS DEL FORMULARIO
+function populateSelects(accounts: Account[]) {
+  let options = `<option value="">-- Selecciona --</option>`;
+  accounts.forEach(acc => {
+    options += `<option value="${acc.id}">${acc.name}</option>`;
+  });
+  originSelect.innerHTML = options;
+  destSelect.innerHTML = options;
+}
+
+// 6. EL EVENTO POST (La magia de la SPA)
+form.addEventListener('submit', async (e) => {
+  e.preventDefault(); // ¡VITAL! Evita que el navegador recargue la página
+
+  // Armamos el JSON que PHP espera
+  const payload = {
+    monto: parseFloat(amountInput.value),
+    origen: originSelect.value ? parseInt(originSelect.value) : null,
+    destino: destSelect.value ? parseInt(destSelect.value) : null
+  };
+
+  try {
+    // Hacemos el POST a tu API
+    const response = await fetch('/api/transfer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    
+    const result = await response.json();
+    
+    if (result.status === 'success') {
+      alert('¡Transferencia exitosa!');
+      form.reset(); // Limpiamos el formulario
+      loadAccounts(); // Recargamos la tabla para ver el nuevo saldo (Reactividad)
+    } else {
+      alert('Error del servidor: ' + result.message);
+    }
+  } catch (error) {
+    alert('Error de conexión con la API');
+  }
+});
+
+// 7. INICIAR LA APP
+loadAccounts();
