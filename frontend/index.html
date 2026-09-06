@@ -7,14 +7,31 @@
 </head>
 <body style="font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background: #f4f6f9;">
 
-  <!-- VISTA 1: LOGIN -->
-  <div id="login-view" style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: 50px auto; text-align: center;">
-    <h2>Iniciar Sesión</h2>
-    <form id="login-form">
-      <input type="email" id="login-email" placeholder="Correo electrónico" required style="width: 90%; padding: 10px; margin-bottom: 15px;"><br>
-      <input type="password" id="login-password" placeholder="Contraseña" required style="width: 90%; padding: 10px; margin-bottom: 15px;"><br>
-      <button type="submit" style="width: 95%; padding: 10px; background: #2980b9; color: white; border: none; border-radius: 5px; cursor: pointer;">Entrar</button>
-    </form>
+  <!-- VISTA 1: AUTENTICACIÓN -->
+  <div id="auth-view" style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: 50px auto; text-align: center;">
+    
+    <!-- Formulario de Login -->
+    <div id="login-section">
+      <h2>Iniciar Sesión</h2>
+      <form id="login-form">
+        <input type="email" id="login-email" placeholder="Correo electrónico" required style="width: 90%; padding: 10px; margin-bottom: 15px;"><br>
+        <input type="password" id="login-password" placeholder="Contraseña" required style="width: 90%; padding: 10px; margin-bottom: 15px;"><br>
+        <button type="submit" style="width: 95%; padding: 10px; background: #2980b9; color: white; border: none; border-radius: 5px; cursor: pointer;">Entrar</button>
+      </form>
+      <p style="margin-top: 15px; font-size: 0.9rem;">¿No tienes cuenta? <a href="#" id="show-register" style="color: #2980b9;">Regístrate aquí</a></p>
+    </div>
+
+    <!-- Formulario de Registro (Oculto por defecto) -->
+    <div id="register-section" style="display: none;">
+      <h2>Crear Cuenta</h2>
+      <form id="register-form">
+        <input type="email" id="register-email" placeholder="Tu correo" required style="width: 90%; padding: 10px; margin-bottom: 15px;"><br>
+        <input type="password" id="register-password" placeholder="Crea una contraseña" required style="width: 90%; padding: 10px; margin-bottom: 15px;"><br>
+        <button type="submit" style="width: 95%; padding: 10px; background: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer;">Registrarme</button>
+      </form>
+      <p style="margin-top: 15px; font-size: 0.9rem;">¿Ya tienes cuenta? <a href="#" id="show-login" style="color: #2980b9;">Inicia sesión</a></p>
+    </div>
+
   </div>
 
   <!-- VISTA 2: DASHBOARD -->
