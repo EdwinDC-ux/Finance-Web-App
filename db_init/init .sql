@@ -1,11 +1,21 @@
--- 1. Tabla de Cuentas
-CREATE TABLE accounts (
+-- 1. Tabla de Usuarios
+CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    balance DECIMAL(15,2) DEFAULT 0.00
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. Tabla de Transacciones (El Libro Mayor)
+-- 2. Tabla de Cuentas (Ahora amarrada a un usuario)
+CREATE TABLE accounts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    balance DECIMAL(15,2) DEFAULT 0.00,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- 3. Tabla de Transacciones (El Libro Mayor)
 CREATE TABLE transactions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     amount DECIMAL(15,2) NOT NULL,
@@ -16,9 +26,13 @@ CREATE TABLE transactions (
     FOREIGN KEY (destination_id) REFERENCES accounts(id)
 );
 
--- Datos iniciales
-INSERT INTO accounts (name, balance) VALUES ('GBM VWRA', 38000.00);
-INSERT INTO accounts (name, balance) VALUES ('Cajita Nu', 9000.00);
+-- DATOS DUMMY PARA PRUEBAS
+-- El password_hash es '123456' encriptado con BCRYPT
+INSERT INTO users (email, password_hash) VALUES ('edwin@fire.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+
+-- Le asignamos las cuentas al usuario 1 (Edwin)
+INSERT INTO accounts (user_id, name, balance) VALUES (1, 'GBM VWRA', 38000.00);
+INSERT INTO accounts (user_id, name, balance) VALUES (1, 'Cajita Nu', 9000.00);
 
 -- 3. EL STORED PROCEDURE MAESTRO (Partida Doble)
 DELIMITER //
