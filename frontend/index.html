@@ -1,13 +1,38 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <title>Finance App</title>
   </head>
-  <body>
-    <div id="app"></div>
+  <body style="font-family: Arial, sans-serif; padding: 20px;">
+    
+    <h1>💰 Mi Imperio Financiero</h1>
+    
+    <!-- Aquí inyectaremos la tabla -->
+    <div id="accounts-container">Cargando cuentas...</div>
+
+    <hr style="margin: 30px 0;">
+
+    <!-- Formulario de Transferencia -->
+    <h2>🔄 Transferir Fondos</h2>
+    <form id="transfer-form">
+      <label>
+        Monto: $<input type="number" id="amount" step="0.01" required>
+      </label><br><br>
+      
+      <label>
+        Origen: <select id="origin"></select>
+      </label><br><br>
+      
+      <label>
+        Destino: <select id="destination"></select>
+      </label><br><br>
+      
+      <button type="submit" style="padding: 10px 20px; cursor: pointer;">Ejecutar Transferencia</button>
+    </form>
+
+    <!-- Vite inyecta tu TypeScript aquí -->
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
