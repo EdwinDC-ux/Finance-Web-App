@@ -18,6 +18,7 @@ $router->get('/', function() {
 // Rutas de Autenticación
 $router->post('/api/login', '\App\Controllers\AuthController@login');
 $router->post('/api/logout', '\App\Controllers\AuthController@logout');
+$router->post('/api/register', '\App\Controllers\AuthController@register');
 
 // Ruta GET (La que ya tenías)
 $router->get('/api/accounts', '\App\Controllers\AccountController@getAllAccounts');
