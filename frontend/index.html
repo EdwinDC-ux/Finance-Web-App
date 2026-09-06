@@ -5,34 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Finance App</title>
   </head>
-  <body style="font-family: Arial, sans-serif; padding: 20px;">
+  <body style="font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto;">
     
-    <h1>💰 Mi Imperio Financiero</h1>
+    <!-- EL DASHBOARD FIRE -->
+    <div style="background: #2c3e50; color: white; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px;">
+        <h2 style="margin: 0; font-size: 1.2rem; color: #bdc3c7;">Patrimonio Neto (Net Worth)</h2>
+        <h1 id="net-worth" style="margin: 10px 0 0 0; font-size: 3rem;">$0.00</h1>
+    </div>
     
-    <!-- Aquí inyectaremos la tabla -->
     <div id="accounts-container">Cargando cuentas...</div>
 
     <hr style="margin: 30px 0;">
 
-    <!-- Formulario de Transferencia -->
     <h2>🔄 Transferir Fondos</h2>
-    <form id="transfer-form">
-      <label>
-        Monto: $<input type="number" id="amount" step="0.01" required>
-      </label><br><br>
-      
-      <label>
-        Origen: <select id="origin"></select>
-      </label><br><br>
-      
-      <label>
-        Destino: <select id="destination"></select>
-      </label><br><br>
-      
-      <button type="submit" style="padding: 10px 20px; cursor: pointer;">Ejecutar Transferencia</button>
+    <form id="transfer-form" style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+      <!-- ... (Deja tu formulario exactamente como lo tenías) ... -->
+      <label>Monto: $<input type="number" id="amount" step="0.01" required></label><br><br>
+      <label>Origen: <select id="origin"></select></label><br><br>
+      <label>Destino: <select id="destination"></select></label><br><br>
+      <button type="submit" style="padding: 10px 20px; cursor: pointer; background: #27ae60; color: white; border: none; border-radius: 5px;">Ejecutar Transferencia</button>
     </form>
 
-    <!-- Vite inyecta tu TypeScript aquí -->
+    <hr style="margin: 30px 0;">
+
+    <!-- EL HISTORIAL -->
+    <h2>📜 Últimos Movimientos</h2>
+    <div id="history-container">Cargando historial...</div>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
