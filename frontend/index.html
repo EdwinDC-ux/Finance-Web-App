@@ -7,15 +7,14 @@
 </head>
 <body style="font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background: #f4f6f9;">
 
-<!-- VISTA 0: PANTALLA DE CARGA (Visible por defecto) -->
+  <!-- VISTA 0: PANTALLA DE CARGA -->
   <div id="loading-view" style="text-align: center; margin-top: 100px;">
     <h2>⏳ Cargando tu imperio...</h2>
   </div>
 
-  <!-- VISTA 1: AUTENTICACIÓN (Oculto por defecto) -->
+  <!-- VISTA 1: AUTENTICACIÓN -->
   <div id="auth-view" style="display: none; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: 50px auto; text-align: center;">
-
-    <!-- Formulario de Login -->
+    
     <div id="login-section">
       <h2>Iniciar Sesión</h2>
       <form id="login-form">
@@ -26,7 +25,6 @@
       <p style="margin-top: 15px; font-size: 0.9rem;">¿No tienes cuenta? <a href="#" id="show-register" style="color: #2980b9;">Regístrate aquí</a></p>
     </div>
 
-    <!-- Formulario de Registro (Oculto por defecto) -->
     <div id="register-section" style="display: none;">
       <h2>Crear Cuenta</h2>
       <form id="register-form">
@@ -42,37 +40,29 @@
   <!-- VISTA 2: DASHBOARD -->
   <div id="dashboard-view" style="display: none;">
     
-    <!-- Botón de Logout -->
     <div style="text-align: right; margin-bottom: 10px;">
       <button id="logout-btn" style="padding: 5px 15px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer;">Cerrar Sesión</button>
     </div>
 
-    <!-- Patrimonio Neto -->
     <div style="background: #2c3e50; color: white; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px;">
         <h2 style="margin: 0; font-size: 1.2rem; color: #bdc3c7;">Patrimonio Neto</h2>
         <h1 id="net-worth" style="margin: 10px 0 0 0; font-size: 3rem;">$0.00</h1>
     </div>
     
-    <!-- Tabla de Cuentas -->
     <div id="accounts-container"></div>
 
     <hr style="margin: 30px 0;">
 
-    <!-- Formulario de Movimientos -->
     <h2>🔄 Registrar Movimiento</h2>
     <form id="transfer-form" style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
       <label>Monto: $<input type="number" id="amount" step="0.01" required></label><br><br>
-      
       <label>Origen: <select id="origin"></select></label><br><br>
-      
       <label>Destino: <select id="destination"></select></label><br><br>
-      
       <button type="submit" style="padding: 10px 20px; cursor: pointer; background: #27ae60; color: white; border: none; border-radius: 5px;">Ejecutar</button>
     </form>
 
     <hr style="margin: 30px 0;">
 
-    <!-- Historial -->
     <h2>📜 Últimos Movimientos</h2>
     <div id="history-container"></div>
 
