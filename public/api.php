@@ -21,5 +21,8 @@ $router->get('/api/accounts', '\App\Controllers\AccountController@getAllAccounts
 // NUEVA RUTA POST (Para transferir dinero)
 $router->post('/api/transfer', '\App\Controllers\TransactionController@transfer');
 
+// Añade esta línea debajo de tus otras rutas
+$router->get('/api/transactions', '\App\Controllers\TransactionController@getHistory');
+
 // 4. Ejecutar el Router
 $router->run();
