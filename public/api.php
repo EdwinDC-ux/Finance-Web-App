@@ -15,8 +15,11 @@ $router->get('/', function() {
     echo "Bienvenido a la API de FinanceApp";
 });
 
-// Ruta RESTful para obtener cuentas
+// Ruta GET (La que ya tenías)
 $router->get('/api/accounts', '\App\Controllers\AccountController@getAllAccounts');
+
+// NUEVA RUTA POST (Para transferir dinero)
+$router->post('/api/transfer', '\App\Controllers\TransactionController@transfer');
 
 // 4. Ejecutar el Router
 $router->run();
