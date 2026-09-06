@@ -15,14 +15,23 @@ interface Transaction {
   dest_name: string | null;
 }
 
-// --- 2. REFERENCIAS AL DOM ---
-const loginView = document.querySelector<HTMLDivElement>('#login-view')!;
+// --- 2. REFERENCIAS AL DOM (Sin duplicados) ---
+const loadingView = document.querySelector<HTMLDivElement>('#loading-view')!;
+const authView = document.querySelector<HTMLDivElement>('#auth-view')!;
 const dashboardView = document.querySelector<HTMLDivElement>('#dashboard-view')!;
+
+const loginSection = document.querySelector<HTMLDivElement>('#login-section')!;
+const registerSection = document.querySelector<HTMLDivElement>('#register-section')!;
+
 const loginForm = document.querySelector<HTMLFormElement>('#login-form')!;
-const logoutBtn = document.querySelector<HTMLButtonElement>('#logout-btn')!;
 const emailInput = document.querySelector<HTMLInputElement>('#login-email')!;
 const passwordInput = document.querySelector<HTMLInputElement>('#login-password')!;
 
+const registerForm = document.querySelector<HTMLFormElement>('#register-form')!;
+const registerEmail = document.querySelector<HTMLInputElement>('#register-email')!;
+const registerPassword = document.querySelector<HTMLInputElement>('#register-password')!;
+
+const logoutBtn = document.querySelector<HTMLButtonElement>('#logout-btn')!;
 const netWorthEl = document.querySelector<HTMLHeadingElement>('#net-worth')!;
 const accountsContainer = document.querySelector<HTMLDivElement>('#accounts-container')!;
 const historyContainer = document.querySelector<HTMLDivElement>('#history-container')!;
@@ -31,34 +40,66 @@ const originSelect = document.querySelector<HTMLSelectElement>('#origin')!;
 const destSelect = document.querySelector<HTMLSelectElement>('#destination')!;
 const amountInput = document.querySelector<HTMLInputElement>('#amount')!;
 
-// --- 3. CONTROL DE VISTAS ---
-function showDashboard(show: boolean) {
-  if (show) {
-    loginView.style.display = 'none';
-    dashboardView.style.display = 'block';
-  } else {
-    loginView.style.display = 'block';
-    dashboardView.style.display = 'none';
-  }
+// --- 3. CONTROL DE VISTAS (Arregla el parpadeo) ---
+function showView(view: 'loading' | 'auth' | 'dashboard') {
+  loadingView.style.display = view === 'loading' ? 'block' : 'none';
+  authView.style.display = view === 'auth' ? 'block' : 'none';
+  dashboardView.style.display = view === 'dashboard' ? 'block' : 'none';
 }
+
+// Alternar entre Login y Registro
+document.querySelector('#show-register')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  loginSection.style.display = 'none';
+  registerSection.style.display = 'block';
+});
+
+document.querySelector('#show-login')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  registerSection.style.display = 'none';
+  loginSection.style.display = 'block';
+});
 
 // --- 4. LÓGICA DE AUTENTICACIÓN ---
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
+  showView('loading'); // Mostramos carga mientras PHP responde
   try {
     const response = await fetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: emailInput.value, password: passwordInput.value })
     });
-    
     const result = await response.json();
     if (response.ok && result.status === 'success') {
-      showDashboard(true);
       loadAccounts();
       loadHistory();
     } else {
+      showView('auth');
       alert(result.message || 'Error al iniciar sesión');
+    }
+  } catch (error) {
+    showView('auth');
+    alert('Error de conexión');
+  }
+});
+
+registerForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  try {
+    const response = await fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: registerEmail.value, password: registerPassword.value })
+    });
+    const result = await response.json();
+    if (result.status === 'success') {
+      alert('¡Cuenta creada! Ahora inicia sesión.');
+      registerForm.reset();
+      registerSection.style.display = 'none';
+      loginSection.style.display = 'block';
+    } else {
+      alert(result.message);
     }
   } catch (error) {
     alert('Error de conexión');
@@ -67,29 +108,24 @@ loginForm.addEventListener('submit', async (e) => {
 
 logoutBtn.addEventListener('click', async () => {
   await fetch('/api/logout', { method: 'POST' });
-  showDashboard(false);
+  showView('auth');
   loginForm.reset();
 });
 
-// --- 5. CARGA DE DATOS (GET) ---
+// --- 5. CARGA DE DATOS ---
 async function loadAccounts() {
   try {
     const response = await fetch('/api/accounts');
-    
     if (response.status === 401) {
-      showDashboard(false); // Si no hay sesión, mostramos el login
+      showView('auth'); // Si no hay sesión, mostramos login
       return;
     }
-
     const result = await response.json();
     if (result.status === 'success') {
-      showDashboard(true);
+      showView('dashboard'); // ¡Éxito! Mostramos el dashboard
       const accounts: Account[] = result.data;
-      
-      // Calcular Patrimonio Neto
       const totalNetWorth = accounts.reduce((sum, acc) => sum + parseFloat(acc.balance), 0);
       netWorthEl.innerText = `$${totalNetWorth.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
-
       renderAccounts(accounts);
       populateSelects(accounts);
     }
@@ -101,8 +137,7 @@ async function loadAccounts() {
 async function loadHistory() {
   try {
     const response = await fetch('/api/transactions');
-    if (response.status === 401) return; // Protegido
-
+    if (response.status === 401) return;
     const result = await response.json();
     if (result.status === 'success') {
       renderHistory(result.data);
@@ -143,16 +178,19 @@ function renderHistory(transactions: Transaction[]) {
   historyContainer.innerHTML = html + `</table>`;
 }
 
+// AQUÍ ESTÁ TU SOLUCIÓN PARA LOS SELECTS
 function populateSelects(accounts: Account[]) {
-  let options = `<option value="">-- Externo (Ingreso/Gasto) --</option>`;
+  let options = '';
   accounts.forEach(acc => {
     options += `<option value="${acc.id}">${acc.name}</option>`;
   });
-  originSelect.innerHTML = options;
-  destSelect.innerHTML = options;
+  
+  // Asignamos el texto personalizado a cada uno
+  originSelect.innerHTML = `<option value="">-- Ingreso (Externo) --</option>` + options;
+  destSelect.innerHTML = `<option value="">-- Gasto (Externo) --</option>` + options;
 }
 
-// --- 7. EJECUCIÓN DE TRANSFERENCIAS (POST) ---
+// --- 7. EJECUCIÓN DE TRANSFERENCIAS ---
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const payload = {
@@ -182,5 +220,6 @@ form.addEventListener('submit', async (e) => {
 });
 
 // --- 8. INICIO DE LA APP ---
+showView('loading'); // Arrancamos en modo carga
 loadAccounts();
 loadHistory();
