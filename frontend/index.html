@@ -1,37 +1,44 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Finance App</title>
-  </head>
-  <body style="font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto;">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finance App SaaS</title>
+</head>
+<body style="font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background: #f4f6f9;">
+
+  <!-- VISTA 1: LOGIN (Visible por defecto) -->
+  <div id="login-view" style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: 50px auto; text-align: center;">
+    <h2>Iniciar Sesión</h2>
+    <form id="login-form">
+      <input type="email" id="login-email" placeholder="Correo electrónico" required style="width: 90%; padding: 10px; margin-bottom: 15px;"><br>
+      <input type="password" id="login-password" placeholder="Contraseña" required style="width: 90%; padding: 10px; margin-bottom: 15px;"><br>
+      <button type="submit" style="width: 95%; padding: 10px; background: #2980b9; color: white; border: none; border-radius: 5px; cursor: pointer;">Entrar</button>
+    </form>
+  </div>
+
+  <!-- VISTA 2: DASHBOARD (Oculto por defecto) -->
+  <div id="dashboard-view" style="display: none;">
     
-    <!-- EL DASHBOARD FIRE -->
+    <!-- Botón de Logout -->
+    <div style="text-align: right; margin-bottom: 10px;">
+      <button id="logout-btn" style="padding: 5px 15px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer;">Cerrar Sesión</button>
+    </div>
+
+    <!-- (AQUÍ VA TODO TU CÓDIGO ANTERIOR DEL DASHBOARD: Patrimonio, Formulario de Transferencia, Tablas, etc.) -->
     <div style="background: #2c3e50; color: white; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px;">
-        <h2 style="margin: 0; font-size: 1.2rem; color: #bdc3c7;">Patrimonio Neto (Net Worth)</h2>
+        <h2 style="margin: 0; font-size: 1.2rem; color: #bdc3c7;">Patrimonio Neto</h2>
         <h1 id="net-worth" style="margin: 10px 0 0 0; font-size: 3rem;">$0.00</h1>
     </div>
     
-    <div id="accounts-container">Cargando cuentas...</div>
+    <div id="accounts-container"></div>
+    <hr>
+    <!-- ... (Tu formulario de transferencias y el div de historial) ... -->
+    <form id="transfer-form">...</form>
+    <div id="history-container"></div>
 
-    <hr style="margin: 30px 0;">
+  </div>
 
-    <h2>🔄 Transferir Fondos</h2>
-    <form id="transfer-form" style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
-      <!-- ... (Deja tu formulario exactamente como lo tenías) ... -->
-      <label>Monto: $<input type="number" id="amount" step="0.01" required></label><br><br>
-      <label>Origen: <select id="origin"></select></label><br><br>
-      <label>Destino: <select id="destination"></select></label><br><br>
-      <button type="submit" style="padding: 10px 20px; cursor: pointer; background: #27ae60; color: white; border: none; border-radius: 5px;">Ejecutar Transferencia</button>
-    </form>
-
-    <hr style="margin: 30px 0;">
-
-    <!-- EL HISTORIAL -->
-    <h2>📜 Últimos Movimientos</h2>
-    <div id="history-container">Cargando historial...</div>
-
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+  <script type="module" src="/src/main.ts"></script>
+</body>
 </html>
