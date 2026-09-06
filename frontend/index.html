@@ -7,9 +7,14 @@
 </head>
 <body style="font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background: #f4f6f9;">
 
-  <!-- VISTA 1: AUTENTICACIÓN -->
-  <div id="auth-view" style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: 50px auto; text-align: center;">
-    
+<!-- VISTA 0: PANTALLA DE CARGA (Visible por defecto) -->
+  <div id="loading-view" style="text-align: center; margin-top: 100px;">
+    <h2>⏳ Cargando tu imperio...</h2>
+  </div>
+
+  <!-- VISTA 1: AUTENTICACIÓN (Oculto por defecto) -->
+  <div id="auth-view" style="display: none; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: 50px auto; text-align: center;">
+
     <!-- Formulario de Login -->
     <div id="login-section">
       <h2>Iniciar Sesión</h2>
