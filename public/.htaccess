@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# Si la ruta empieza con /api, mándala al index.php (Tu Backend)
+RewriteCond %{REQUEST_URI} ^/api/ [NC]
+RewriteRule ^(.*)$ api.php [QSA,L]
+
+# Si no es un archivo o directorio real, manda todo al index.html (Tu Frontend SPA)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.html [QSA,L]
