@@ -60,4 +60,28 @@ class TransactionController {
             echo json_encode(["status" => "error", "message" => "Error interno: " . $e->getMessage()]);
         }
     }
+
+    public function getHistory() {
+        try {
+            $pdo = \App\Core\Database::getConnection();
+            
+            // Usamos LEFT JOIN para traer los nombres de las cuentas
+            $sql = "SELECT t.id, t.amount, t.created_at, 
+                           o.name AS origin_name, 
+                           d.name AS dest_name
+                    FROM transactions t
+                    LEFT JOIN accounts o ON t.origin_id = o.id
+                    LEFT JOIN accounts d ON t.destination_id = d.id
+                    ORDER BY t.created_at DESC 
+                    LIMIT 10";
+                    
+            $stmt = $pdo->query($sql);
+            $history = $stmt->fetchAll();
+
+            echo json_encode(["status" => "success", "data" => $history]);
+
+        } catch (\Exception $e) {
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+        }
+    }
 }
