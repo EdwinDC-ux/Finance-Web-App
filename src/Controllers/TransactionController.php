@@ -24,6 +24,7 @@ class TransactionController {
         $data = json_decode($json, true);
 
         $monto = $data['monto'] ?? 0;
+        $categoria = $data['categoria'] ?? null;
         $origen = $data['origen'] ?? null;
         $destino = $data['destino'] ?? null;
 
@@ -34,6 +35,11 @@ class TransactionController {
 
         if (empty($origen) && empty($destino)) {
             echo json_encode(["status" => "error", "message" => "Selecciona al menos una cuenta"]);
+            return;
+        }
+
+        if (empty($categoria)) {
+            echo json_encode(["status" => "error", "message" => "Selecciona una categoria"]);
             return;
         }
 
@@ -57,11 +63,12 @@ class TransactionController {
                 }
             }
             
-            $stmt = $pdo->prepare("CALL sp_transferir_fondos(:monto, :origen, :destino)");
+            $stmt = $pdo->prepare("CALL sp_transferir_fondos(:monto, :origen, :destino, :categoria)");
             $stmt->execute([
                 ':monto' => $monto,
                 ':origen' => $origen,
-                ':destino' => $destino
+                ':destino' => $destino,
+                ':categoria' => $categoria
             ]);
 
             echo json_encode(["status" => "success", "message" => "Operación exitosa"]);
@@ -78,12 +85,14 @@ class TransactionController {
             $pdo = Database::getConnection();
             
             // Solo traemos transacciones donde el origen o el destino pertenezcan a este usuario
-            $sql = "SELECT t.id, t.amount, t.created_at, 
+            $sql = "SELECT t.id, t.amount, t.created_at,
+                           c.name AS category,
                            o.name AS origin_name, 
                            d.name AS dest_name
                     FROM transactions t
                     LEFT JOIN accounts o ON t.origin_id = o.id
                     LEFT JOIN accounts d ON t.destination_id = d.id
+                    LEFT JOIN categories c ON t.category_id = c.id
                     WHERE (o.user_id = :user_id OR d.user_id = :user_id)
                     ORDER BY t.created_at DESC 
                     LIMIT 10";
