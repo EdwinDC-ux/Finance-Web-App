@@ -11,3 +11,8 @@ export interface Transaction {
     origin_name: string | null;
     dest_name: string | null;
 }
+
+export interface UserProfile {
+    email: string;
+    fire_target: string;
+}
