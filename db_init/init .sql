@@ -51,7 +51,8 @@ DELIMITER //
 CREATE PROCEDURE sp_transferir_fondos(
     IN p_monto DECIMAL(15,2),
     IN p_origen INT,
-    IN p_destino INT
+    IN p_destino INT,
+    IN p_categoria INT
 )
 BEGIN
     -- Si hay un error, MySQL cancela todo automáticamente
@@ -74,8 +75,8 @@ BEGIN
     END IF;
 
     -- Registramos el movimiento histórico
-    INSERT INTO transactions (amount, origin_id, destination_id) 
-    VALUES (p_monto, p_origen, p_destino);
+    INSERT INTO transactions (amount, origin_id, destination_id, category_id) 
+    VALUES (p_monto, p_origen, p_destino, p_categoria);
 
     COMMIT;
 END //
