@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Finance App SaaS</title>
 </head>
-<body style="font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background: #f4f6f9;">
+<body style="font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto;">
 
   <!-- VISTA 0: PANTALLA DE CARGA -->
   <div id="loading-view" style="text-align: center; margin-top: 100px;">
@@ -47,6 +47,16 @@
     <div style="background: #2c3e50; color: white; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px;">
         <h2 style="margin: 0; font-size: 1.2rem; color: #bdc3c7;">Patrimonio Neto</h2>
         <h1 id="net-worth" style="margin: 10px 0 0 0; font-size: 3rem;">$0.00</h1>
+    </div>
+
+    <!-- Formulario para Crear Cuenta -->
+    <div style="background: #ecf0f1; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+      <h3 style="margin-top: 0;">🏦 Añadir Nueva Cuenta</h3>
+      <form id="add-account-form" style="display: flex; gap: 10px; align-items: center;">
+        <input type="text" id="new-account-name" placeholder="Ej. Banamex, Nu, GBM" required style="padding: 8px; flex: 1;">
+        <input type="number" id="new-account-balance" placeholder="Saldo Inicial" step="0.01" required style="padding: 8px; width: 120px;">
+        <button type="submit" style="padding: 8px 15px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer;">Añadir</button>
+      </form>
     </div>
     
     <div id="accounts-container"></div>
