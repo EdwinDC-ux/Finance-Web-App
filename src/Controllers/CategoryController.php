@@ -4,7 +4,7 @@ namespace App\Controllers;
 use App\Core\Database;
 use PDO;
 
-class TransactionController {
+class CategoryController {
     
     // Función auxiliar para el cadenero
     private function checkAuth() {
