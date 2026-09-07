@@ -32,7 +32,7 @@ CREATE TABLE transactions (
 CREATE TABLE categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    NAME VARCHAR(50) NOT NULL,
+    name VARCHAR(50) NOT NULL,
     type VARCHAR(10) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id)
 )
