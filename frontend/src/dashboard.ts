@@ -1,4 +1,4 @@
-import { type Account, type Transaction } from './types';
+import { type Account, type Transaction, type UserProfile } from './types';
 import { showView } from './ui';
 
 const netWorthEl = document.querySelector<HTMLHeadingElement>('#net-worth')!;
@@ -11,6 +11,10 @@ const amountInput = document.querySelector<HTMLInputElement>('#amount')!;
 const addAccountForm = document.querySelector<HTMLFormElement>('#add-account-form')!;
 const newAccountName = document.querySelector<HTMLInputElement>('#new-account-name')!;
 const newAccountBalance = document.querySelector<HTMLInputElement>('#new-account-balance')!;
+const firePercentageEl = document.querySelector<HTMLSpanElement>('#fire-percentage')!;
+const fireProgressBar = document.querySelector<HTMLDivElement>('#fire-progress-bar')!;
+const fireTargetDisplay = document.querySelector<HTMLSpanElement>('#fire-target-display')!;
+const editFireBtn = document.querySelector<HTMLAnchorElement>('#edit-fire-btn')!;
 
 export async function loadAccounts() {
     try {
@@ -25,6 +29,7 @@ export async function loadAccounts() {
             const accounts: Account[] = result.data;
             const totalNetWorth = accounts.reduce((sum, acc) => sum + parseFloat(acc.balance), 0);
             netWorthEl.innerText = `$${totalNetWorth.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
+            loadUserProfile(totalNetWorth);
             renderAccounts(accounts);
             populateSelects(accounts);
         }
@@ -43,6 +48,33 @@ export async function loadHistory() {
         }
     } catch (error) {
         console.error("Error:", error);
+    }
+}
+
+export async function loadUserProfile(currentNetWorth: number) {
+    try {
+        const response = await fetch('/api/user');
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            const user: UserProfile = result.data;
+            const target = parseFloat(user.fire_target);
+            
+            fireTargetDisplay.innerText = `$${target.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
+            
+            if (target > 0) {
+                let percentage = (currentNetWorth / target) * 100;
+                if (percentage > 100) percentage = 100; // Topamos al 100% visualmente
+                
+                firePercentageEl.innerText = `${percentage.toFixed(2)}%`;
+                fireProgressBar.style.width = `${percentage}%`;
+            } else {
+                firePercentageEl.innerText = `0%`;
+                fireProgressBar.style.width = `0%`;
+            }
+        }
+    } catch (error) {
+        console.error("Error cargando perfil:", error);
     }
 }
 
@@ -136,6 +168,19 @@ export function initDashboard() {
             }
         } catch (error) {
             alert('Error al crear la cuenta');
+        }
+    });
+
+    editFireBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const newTarget = prompt("Ingresa tu nueva Meta FIRE (ej. 5000000):");
+        if (newTarget && !isNaN(parseFloat(newTarget))) {
+            await fetch('/api/user/fire-target', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fire_target: parseFloat(newTarget) })
+            });
+        loadAccounts(); // Recargamos para recalcular el porcentaje
         }
     });
 }
