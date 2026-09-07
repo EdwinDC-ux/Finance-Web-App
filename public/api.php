@@ -31,5 +31,8 @@ $router->post('/api/transfer', '\App\Controllers\TransactionController@transfer'
 // Añade esta línea debajo de tus otras rutas
 $router->get('/api/transactions', '\App\Controllers\TransactionController@getHistory');
 
+$router->get('/api/user', '\App\Controllers\UserController@getProfile');
+$router->post('/api/user/fire-target', '\App\Controllers\UserController@updateFireTarget');
+
 // 4. Ejecutar el Router
 $router->run();
