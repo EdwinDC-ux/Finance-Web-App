@@ -8,6 +8,9 @@ const form = document.querySelector<HTMLFormElement>('#transfer-form')!;
 const originSelect = document.querySelector<HTMLSelectElement>('#origin')!;
 const destSelect = document.querySelector<HTMLSelectElement>('#destination')!;
 const amountInput = document.querySelector<HTMLInputElement>('#amount')!;
+const addAccountForm = document.querySelector<HTMLFormElement>('#add-account-form')!;
+const newAccountName = document.querySelector<HTMLInputElement>('#new-account-name')!;
+const newAccountBalance = document.querySelector<HTMLInputElement>('#new-account-balance')!;
 
 export async function loadAccounts() {
     try {
@@ -108,6 +111,31 @@ export function initDashboard() {
             }
         } catch (error) {
             alert('Error de conexión');
+        }
+    });
+
+    // Evento para Crear Cuenta
+    addAccountForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch('/api/accounts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: newAccountName.value,
+                    balance: parseFloat(newAccountBalance.value)
+                })
+            });
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                addAccountForm.reset();
+                loadAccounts(); // Recargamos para ver la nueva cuenta
+            } else {
+                alert(result.message);
+            }
+        } catch (error) {
+            alert('Error al crear la cuenta');
         }
     });
 }
