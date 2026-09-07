@@ -1,4 +1,4 @@
-import { Account, Transaction } from './types';
+import { type Account, type Transaction } from './types';
 import { showView } from './ui';
 
 const netWorthEl = document.querySelector<HTMLHeadingElement>('#net-worth')!;
