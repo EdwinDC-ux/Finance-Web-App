@@ -22,6 +22,8 @@ $router->post('/api/register', '\App\Controllers\AuthController@register');
 
 // Ruta GET (La que ya tenías)
 $router->get('/api/accounts', '\App\Controllers\AccountController@getAllAccounts');
+// Debajo de tu ruta GET de accounts, añade esta:
+$router->post('/api/accounts', '\App\Controllers\AccountController@create');
 
 // NUEVA RUTA POST (Para transferir dinero)
 $router->post('/api/transfer', '\App\Controllers\TransactionController@transfer');
