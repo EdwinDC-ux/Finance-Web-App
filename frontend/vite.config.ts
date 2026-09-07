@@ -10,6 +10,9 @@ export default defineConfig({
         target: 'http://web:80', // 'web' es el nombre de tu servicio en docker-compose
         changeOrigin: true,
       }
+    },
+    watch: {
+      usePolling: true
     }
   }
 });
