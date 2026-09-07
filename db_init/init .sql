@@ -35,7 +35,7 @@ CREATE TABLE categories (
     name VARCHAR(50) NOT NULL,
     type VARCHAR(10) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id)
-)
+);
 
 -- DATOS DUMMY PARA PRUEBAS
 -- El password_hash es '123456' encriptado con BCRYPT
