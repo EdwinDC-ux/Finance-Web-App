@@ -23,9 +23,19 @@ CREATE TABLE transactions (
     origin_id INT NULL,
     destination_id INT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    category_id INT NULL,
     FOREIGN KEY (origin_id) REFERENCES accounts(id),
     FOREIGN KEY (destination_id) REFERENCES accounts(id)
 );
+
+-- 4. Tabla de categorias
+CREATE TABLE categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    NAME VARCHAR(50) NOT NULL,
+    type VARCHAR(10) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+)
 
 -- DATOS DUMMY PARA PRUEBAS
 -- El password_hash es '123456' encriptado con BCRYPT
