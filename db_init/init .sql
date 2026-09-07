@@ -23,9 +23,10 @@ CREATE TABLE transactions (
     origin_id INT NULL,
     destination_id INT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    category_id INT NULL,
+    category_id INT NOT NULL,
     FOREIGN KEY (origin_id) REFERENCES accounts(id),
-    FOREIGN KEY (destination_id) REFERENCES accounts(id)
+    FOREIGN KEY (destination_id) REFERENCES accounts(id),
+    FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 
 -- 4. Tabla de categorias
