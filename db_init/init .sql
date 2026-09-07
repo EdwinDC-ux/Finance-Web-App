@@ -16,7 +16,16 @@ CREATE TABLE accounts (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- 3. Tabla de Transacciones (El Libro Mayor)
+-- 3. Tabla de categorias
+CREATE TABLE categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    type VARCHAR(10) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- 4. Tabla de Transacciones (El Libro Mayor)
 CREATE TABLE transactions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     amount DECIMAL(15,2) NOT NULL,
@@ -27,15 +36,6 @@ CREATE TABLE transactions (
     FOREIGN KEY (origin_id) REFERENCES accounts(id),
     FOREIGN KEY (destination_id) REFERENCES accounts(id),
     FOREIGN KEY (category_id) REFERENCES categories(id)
-);
-
--- 4. Tabla de categorias
-CREATE TABLE categories (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    name VARCHAR(50) NOT NULL,
-    type VARCHAR(10) NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 -- DATOS DUMMY PARA PRUEBAS
