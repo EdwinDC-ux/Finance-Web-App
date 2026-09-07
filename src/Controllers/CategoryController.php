@@ -40,7 +40,7 @@ class CategoryController {
         $type = $data['type'] ?? '';
 
         if (empty($name)) {
-            echo json_encode(["status" => "error", "message" => "El nombre de la cuenta es obligatorio"]);
+            echo json_encode(["status" => "error", "message" => "El nombre de la categoría es obligatorio"]);
             return;
         }
 
