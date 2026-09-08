@@ -1,5 +1,6 @@
 import { type Account, type Transaction, type UserProfile, type Category } from './types';
 import { showView } from './ui';
+import Chart from 'chart.js/auto'; // NUEVO IMPORT
 
 
 const addCategoryForm = document.querySelector<HTMLFormElement>('#add-category-form')!;
@@ -20,6 +21,8 @@ const firePercentageEl = document.querySelector<HTMLSpanElement>('#fire-percenta
 const fireProgressBar = document.querySelector<HTMLDivElement>('#fire-progress-bar')!;
 const fireTargetDisplay = document.querySelector<HTMLSpanElement>('#fire-target-display')!;
 const editFireBtn = document.querySelector<HTMLAnchorElement>('#edit-fire-btn')!;
+const expenseChartCtx = document.querySelector<HTMLCanvasElement>('#expense-chart')!;
+let myChart: Chart | null = null; // Guardamos la instancia para poder destruirla al recargar
 
 export async function loadAccounts() {
     try {
@@ -104,6 +107,50 @@ export async function loadCategories() {
     }
 }
 
+export async function loadStats() {
+    try {
+        const response = await fetch('/api/stats/expenses');
+        if (response.status === 401) return;
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            const data = result.data;
+        
+            // Extraemos los nombres y los totales para Chart.js
+            const labels = data.map((item: any) => item.category);
+            const totals = data.map((item: any) => parseFloat(item.total));
+
+            // Si ya existe una gráfica, la destruimos antes de pintar la nueva (Reactividad)
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            // Pintamos la nueva gráfica
+            myChart = new Chart(expenseChartCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: totals,
+                        backgroundColor: [
+                        '#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+    } catch (error) {
+        console.error("Error cargando estadísticas:", error);
+    }
+}
+
 function renderAccounts(accounts: Account[]) {
     let html = `<table width="100%" border="1" cellpadding="8" style="border-collapse: collapse;">
         <tr style="background: #eee;"><th>Cuenta</th><th>Saldo</th></tr>`;
@@ -168,6 +215,7 @@ export function initDashboard() {
                 form.reset();
                 loadAccounts(); 
                 loadHistory();
+                loadStats();
             } else {
                 alert('Error: ' + result.message);
             }
