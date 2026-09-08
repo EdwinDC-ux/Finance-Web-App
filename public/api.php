@@ -37,5 +37,7 @@ $router->post('/api/user/fire-target', '\App\Controllers\UserController@updateFi
 $router->get('/api/categories', '\App\Controllers\CategoryController@getAllCategories');
 $router->post('/api/categories', '\App\Controllers\CategoryController@create');
 
+$router->get('/api/stats/expenses', '\App\Controllers\StatsController@getExpenses');
+
 // 4. Ejecutar el Router
 $router->run();
