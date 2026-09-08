@@ -38,6 +38,7 @@ $router->get('/api/categories', '\App\Controllers\CategoryController@getAllCateg
 $router->post('/api/categories', '\App\Controllers\CategoryController@create');
 
 $router->get('/api/stats/expenses', '\App\Controllers\StatsController@getExpenses');
+$router->get('/api/stats/cashflow', '\App\Controllers\StatsController@getCashFlow');
 
 // 4. Ejecutar el Router
 $router->run();
