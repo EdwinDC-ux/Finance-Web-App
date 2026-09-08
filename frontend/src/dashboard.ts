@@ -21,6 +21,9 @@ const firePercentageEl = document.querySelector<HTMLSpanElement>('#fire-percenta
 const fireProgressBar = document.querySelector<HTMLDivElement>('#fire-progress-bar')!;
 const fireTargetDisplay = document.querySelector<HTMLSpanElement>('#fire-target-display')!;
 const editFireBtn = document.querySelector<HTMLAnchorElement>('#edit-fire-btn')!;
+const monthIncomeEl = document.querySelector<HTMLHeadingElement>('#month-income')!;
+const monthExpenseEl = document.querySelector<HTMLHeadingElement>('#month-expense')!;
+const savingsRateEl = document.querySelector<HTMLHeadingElement>('#savings-rate')!;
 const expenseChartCtx = document.querySelector<HTMLCanvasElement>('#expense-chart')!;
 let myChart: Chart | null = null; // Guardamos la instancia para poder destruirla al recargar
 
@@ -44,10 +47,38 @@ export async function loadAccounts() {
             // AQUÍ DISPARAMOS EL RESTO (Solo si el login fue exitoso)
             loadCategories();
             loadStats();
+            loadCashFlow();
             loadHistory();
         }
     } catch (error) {
         console.error("Error:", error);
+    }
+}
+
+export async function loadCashFlow() {
+    try {
+        const response = await fetch('/api/stats/cashflow');
+        if (response.status === 401) return;
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            const income = result.data.income;
+            const expense = result.data.expense;
+            
+            monthIncomeEl.innerText = `$${income.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
+            monthExpenseEl.innerText = `$${expense.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
+            
+            // MAGIA FIRE: Cálculo de la Tasa de Ahorro
+            if (income > 0) {
+                const savings = income - expense;
+                const rate = (savings / income) * 100;
+                savingsRateEl.innerText = `${rate.toFixed(1)}%`;
+            } else {
+                savingsRateEl.innerText = `0.0%`;
+            }
+        }
+    } catch (error) {
+        console.error("Error cargando flujo de caja:", error);
     }
 }
 
@@ -220,6 +251,7 @@ export function initDashboard() {
                 form.reset();
                 loadAccounts(); 
                 loadHistory();
+                loadCashFlow();
                 loadStats();
             } else {
                 alert('Error: ' + result.message);
