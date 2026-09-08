@@ -34,5 +34,8 @@ $router->get('/api/transactions', '\App\Controllers\TransactionController@getHis
 $router->get('/api/user', '\App\Controllers\UserController@getProfile');
 $router->post('/api/user/fire-target', '\App\Controllers\UserController@updateFireTarget');
 
+$router->get('/api/categories', '\App\Controllers\CategoryController@getAllCategories');
+$router->post('/api/categories', '\App\Controllers\CategoryController@create');
+
 // 4. Ejecutar el Router
 $router->run();
