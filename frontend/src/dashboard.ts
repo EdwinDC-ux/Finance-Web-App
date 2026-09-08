@@ -40,6 +40,11 @@ export async function loadAccounts() {
             loadUserProfile(totalNetWorth);
             renderAccounts(accounts);
             populateSelects(accounts);
+
+            // AQUÍ DISPARAMOS EL RESTO (Solo si el login fue exitoso)
+            loadCategories();
+            loadStats();
+            loadHistory();
         }
     } catch (error) {
         console.error("Error:", error);
