@@ -73,6 +73,20 @@
         <button type="submit" style="padding: 8px 15px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer;">Añadir</button>
       </form>
     </div>
+
+    <!-- Formulario para Crear Categoría -->
+    <div style="background: #ecf0f1; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+      <h3 style="margin-top: 0;">🏷️ Añadir Nueva Categoría</h3>
+      <form id="add-category-form" style="display: flex; gap: 10px; align-items: center;">
+        <input type="text" id="new-category-name" placeholder="Ej. Sueldo, Despensa, Streaming" required style="padding: 8px; flex: 1;">
+        <select id="new-category-type" required style="padding: 8px;">
+          <option value="">-- Tipo --</option>
+          <option value="ingreso">Ingreso</option>
+          <option value="gasto">Gasto</option>
+        </select>
+        <button type="submit" style="padding: 8px 15px; background: #8e44ad; color: white; border: none; border-radius: 5px; cursor: pointer;">Añadir</button>
+      </form>
+    </div>
     
     <div id="accounts-container"></div>
 
@@ -83,6 +97,7 @@
       <label>Monto: $<input type="number" id="amount" step="0.01" required></label><br><br>
       <label>Origen: <select id="origin"></select></label><br><br>
       <label>Destino: <select id="destination"></select></label><br><br>
+      <label>Categoría: <select id="category" required></select></label><br><br>
       <button type="submit" style="padding: 10px 20px; cursor: pointer; background: #27ae60; color: white; border: none; border-radius: 5px;">Ejecutar</button>
     </form>
 
