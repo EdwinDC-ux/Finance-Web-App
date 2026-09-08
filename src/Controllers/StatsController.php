@@ -43,4 +43,47 @@ class StatsController {
             echo json_encode(["status" => "error", "message" => $e->getMessage()]);
         }
     }
+
+    public function getCashFlow() {
+        $userId = $this->checkAuth();
+        
+        try {
+            $pdo = Database::getConnection();
+            
+            // 1. Calcular Ingresos del Mes (Origen es NULL, Destino es una cuenta del usuario)
+            $sqlIncome = "SELECT COALESCE(SUM(t.amount), 0) as total_income 
+                          FROM transactions t
+                          JOIN accounts d ON t.destination_id = d.id
+                          WHERE d.user_id = :user_id 
+                            AND t.origin_id IS NULL 
+                            AND MONTH(t.created_at) = MONTH(CURRENT_DATE())
+                            AND YEAR(t.created_at) = YEAR(CURRENT_DATE())";
+            $stmtIn = $pdo->prepare($sqlIncome);
+            $stmtIn->execute([':user_id' => $userId]);
+            $income = $stmtIn->fetchColumn();
+
+            // 2. Calcular Gastos del Mes (Origen es cuenta del usuario, Destino es NULL)
+            $sqlExpense = "SELECT COALESCE(SUM(t.amount), 0) as total_expense 
+                           FROM transactions t
+                           JOIN accounts o ON t.origin_id = o.id
+                           WHERE o.user_id = :user_id 
+                             AND t.destination_id IS NULL 
+                             AND MONTH(t.created_at) = MONTH(CURRENT_DATE())
+                             AND YEAR(t.created_at) = YEAR(CURRENT_DATE())";
+            $stmtEx = $pdo->prepare($sqlExpense);
+            $stmtEx->execute([':user_id' => $userId]);
+            $expense = $stmtEx->fetchColumn();
+
+            echo json_encode([
+                "status" => "success", 
+                "data" => [
+                    "income" => (float)$income,
+                    "expense" => (float)$expense
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+        }
+    }
 }
