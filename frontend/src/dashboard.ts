@@ -1,6 +1,11 @@
-import { type Account, type Transaction, type UserProfile } from './types';
+import { type Account, type Transaction, type UserProfile, type Category } from './types';
 import { showView } from './ui';
 
+
+const addCategoryForm = document.querySelector<HTMLFormElement>('#add-category-form')!;
+const newCategoryName = document.querySelector<HTMLInputElement>('#new-category-name')!;
+const newCategoryType = document.querySelector<HTMLSelectElement>('#new-category-type')!;
+const categorySelect = document.querySelector<HTMLSelectElement>('#category')!;
 const netWorthEl = document.querySelector<HTMLHeadingElement>('#net-worth')!;
 const accountsContainer = document.querySelector<HTMLDivElement>('#accounts-container')!;
 const historyContainer = document.querySelector<HTMLDivElement>('#history-container')!;
@@ -78,6 +83,27 @@ export async function loadUserProfile(currentNetWorth: number) {
     }
 }
 
+export async function loadCategories() {
+    try {
+        const response = await fetch('/api/categories');
+        if (response.status === 401) return;
+        const result = await response.json();
+        if (result.status === 'success') {
+            const categories: Category[] = result.data;
+        
+            // Llenar el select del formulario de transferencias
+            let options = `<option value="">-- Selecciona Categoría --</option>`;
+            categories.forEach(cat => {
+                const icon = cat.type === 'ingreso' ? '📈' : '📉';
+                options += `<option value="${cat.id}">${icon} ${cat.name}</option>`;
+            });
+            categorySelect.innerHTML = options;
+        }
+    } catch (error) {
+        console.error("Error cargando categorías:", error);
+    }
+}
+
 function renderAccounts(accounts: Account[]) {
     let html = `<table width="100%" border="1" cellpadding="8" style="border-collapse: collapse;">
         <tr style="background: #eee;"><th>Cuenta</th><th>Saldo</th></tr>`;
@@ -93,13 +119,16 @@ function renderHistory(transactions: Transaction[]) {
         return;
     }
     let html = `<table width="100%" border="1" cellpadding="8" style="border-collapse: collapse;">
-        <tr style="background: #eee;"><th>Fecha</th><th>Origen</th><th>Destino</th><th>Monto</th></tr>`;
+        <tr style="background: #eee;"><th>Fecha</th><th>Categoría</th><th>Origen</th><th>Destino</th><th>Monto</th></tr>`;
     transactions.forEach(tx => {
         const date = new Date(tx.created_at).toLocaleString('es-MX');
-        const origin = tx.origin_name || '<span style="color:green">Ingreso Externo</span>';
-        const dest = tx.dest_name || '<span style="color:red">Gasto Externo</span>';
+        const origin = tx.origin_name || '<span style="color:green">Externo</span>';
+        const dest = tx.dest_name || '<span style="color:red">Externo</span>';
+        const cat = tx.category || 'Transferencia'; // Muestra la categoría
+        
         html += `<tr>
         <td><small>${date}</small></td>
+        <td><strong>${cat}</strong></td>
         <td>${origin}</td>
         <td>${dest}</td>
         <td align="right"><strong>$${parseFloat(tx.amount).toLocaleString('es-MX')}</strong></td>
@@ -122,6 +151,7 @@ export function initDashboard() {
         e.preventDefault();
         const payload = {
             monto: parseFloat(amountInput.value),
+            categoria: parseInt(categorySelect.value), // NUEVO
             origen: originSelect.value ? parseInt(originSelect.value) : null,
             destino: destSelect.value ? parseInt(destSelect.value) : null
         };
@@ -181,6 +211,30 @@ export function initDashboard() {
                 body: JSON.stringify({ fire_target: parseFloat(newTarget) })
             });
         loadAccounts(); // Recargamos para recalcular el porcentaje
+        }
+    });
+
+    // NUEVO: Evento para crear categoría
+    addCategoryForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch('/api/categories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: newCategoryName.value,
+                    type: newCategoryType.value
+                })
+            });
+            const result = await response.json();
+            if (result.status === 'success') {
+                addCategoryForm.reset();
+                loadCategories(); // Recargamos el select
+            } else {
+                alert(result.message);
+            }
+        } catch (error) {
+        alert('Error al crear categoría');
         }
     });
 }
