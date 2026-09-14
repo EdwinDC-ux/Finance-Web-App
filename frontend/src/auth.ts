@@ -1,5 +1,5 @@
 import { showView } from './ui';
-import { loadAccounts, loadHistory } from './dashboard';
+import { loadAccounts } from './dashboard';
 
 const loginSection = document.querySelector<HTMLDivElement>('#login-section')!;
 const registerSection = document.querySelector<HTMLDivElement>('#register-section')!;
@@ -35,8 +35,7 @@ export function initAuth() {
             });
             const result = await response.json();
             if (response.ok && result.status === 'success') {
-                loadAccounts();
-                loadHistory();
+                loadAccounts(); 
             } else {
                 showView('auth');
                 alert(result.message || 'Error al iniciar sesión');

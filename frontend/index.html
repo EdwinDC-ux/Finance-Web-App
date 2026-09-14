@@ -5,130 +5,153 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Finance App SaaS</title>
 </head>
-<body style="font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto;">
+<body>
 
-  <!-- VISTA 0: PANTALLA DE CARGA -->
+  <!-- VISTA 0: CARGA -->
   <div id="loading-view" style="text-align: center; margin-top: 100px;">
     <h2>⏳ Cargando tu imperio...</h2>
   </div>
 
   <!-- VISTA 1: AUTENTICACIÓN -->
-  <div id="auth-view" style="display: none; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: 50px auto; text-align: center;">
-    
+  <div id="auth-view" class="view-container auth-card" style="display: none;">
     <div id="login-section">
       <h2>Iniciar Sesión</h2>
       <form id="login-form">
-        <input type="email" id="login-email" placeholder="Correo electrónico" required style="width: 90%; padding: 10px; margin-bottom: 15px;"><br>
-        <input type="password" id="login-password" placeholder="Contraseña" required style="width: 90%; padding: 10px; margin-bottom: 15px;"><br>
-        <button type="submit" style="width: 95%; padding: 10px; background: #2980b9; color: white; border: none; border-radius: 5px; cursor: pointer;">Entrar</button>
+        <input type="email" id="login-email" class="form-input" placeholder="Correo" required>
+        <input type="password" id="login-password" class="form-input" placeholder="Contraseña" required>
+        <button type="submit" class="btn btn-primary">Entrar</button>
       </form>
-      <p style="margin-top: 15px; font-size: 0.9rem;">¿No tienes cuenta? <a href="#" id="show-register" style="color: #2980b9;">Regístrate aquí</a></p>
+      <p style="margin-top: 15px;">¿No tienes cuenta? <a href="#" id="show-register">Regístrate aquí</a></p>
     </div>
 
     <div id="register-section" style="display: none;">
       <h2>Crear Cuenta</h2>
       <form id="register-form">
-        <input type="email" id="register-email" placeholder="Tu correo" required style="width: 90%; padding: 10px; margin-bottom: 15px;"><br>
-        <input type="password" id="register-password" placeholder="Crea una contraseña" required style="width: 90%; padding: 10px; margin-bottom: 15px;"><br>
-        <button type="submit" style="width: 95%; padding: 10px; background: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer;">Registrarme</button>
+        <input type="email" id="register-email" class="form-input" placeholder="Correo" required>
+        <input type="password" id="register-password" class="form-input" placeholder="Contraseña" required>
+        <button type="submit" class="btn btn-success">Registrarme</button>
       </form>
-      <p style="margin-top: 15px; font-size: 0.9rem;">¿Ya tienes cuenta? <a href="#" id="show-login" style="color: #2980b9;">Inicia sesión</a></p>
+      <p style="margin-top: 15px;">¿Ya tienes cuenta? <a href="#" id="show-login">Inicia sesión</a></p>
     </div>
-
   </div>
 
   <!-- VISTA 2: DASHBOARD -->
-  <div id="dashboard-view" style="display: none;">
+  <div id="dashboard-view" class="view-container" style="display: none;">
     
-    <div style="text-align: right; margin-bottom: 10px;">
-      <button id="logout-btn" style="padding: 5px 15px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer;">Cerrar Sesión</button>
+    <div class="flex-between" style="margin-bottom: 20px;">
+      <h2 style="margin: 0;">Mi Imperio Financiero</h2>
+      <button id="logout-btn" class="btn btn-danger">Cerrar Sesión</button>
     </div>
 
-    <div style="background: #2c3e50; color: white; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px;">
-        <h2 style="margin: 0; font-size: 1.2rem; color: #bdc3c7;">Patrimonio Neto</h2>
-        <h1 id="net-worth" style="margin: 10px 0 0 0; font-size: 3rem;">$0.00</h1>
+    <!-- Patrimonio y FIRE -->
+    <div class="card card-dark">
+        <h3>Patrimonio Neto</h3>
+        <h1 id="net-worth" class="net-worth-amount">$0.00</h1>
         
-        <!-- NUEVO: BARRA DE PROGRESO FIRE -->
-        <div style="margin-top: 20px; background: #34495e; border-radius: 10px; padding: 15px;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px;">
+        <div class="fire-widget">
+            <div class="flex-between" style="font-size: 0.9rem; margin-bottom: 5px;">
                 <span>Progreso FIRE</span>
                 <span id="fire-percentage">0%</span>
             </div>
-            <div style="width: 100%; background: #1abc9c; height: 10px; border-radius: 5px; overflow: hidden;">
-                <div id="fire-progress-bar" style="width: 0%; background: #f1c40f; height: 100%; transition: width 0.5s ease;"></div>
+            <div class="progress-track">
+                <div id="fire-progress-bar" class="progress-fill" style="width: 0%;"></div>
             </div>
-            <p style="margin: 10px 0 0 0; font-size: 0.8rem; color: #95a5a6;">
+            <p class="fire-meta-text">
                 Meta: <span id="fire-target-display">$0.00</span> 
-                <a href="#" id="edit-fire-btn" style="color: #3498db; text-decoration: none; margin-left: 10px;">✏️ Editar</a>
+                <a id="edit-fire-btn" class="link-edit">✏️ Editar</a>
             </p>
         </div>
     </div>
 
-    <!-- NUEVO: PANEL DE FLUJO DE CAJA -->
+    <!-- Gráfica Histórica de Patrimonio -->
+    <div class="card" style="text-align: center;">
+      <h3 style="margin-top: 0; color: var(--text-muted);">📈 Crecimiento Histórico</h3>
+      <div style="width: 100%; max-width: 600px; margin: 0 auto;">
+        <canvas id="net-worth-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Flujo de Caja -->
     <div style="display: flex; gap: 15px; margin-bottom: 20px;">
-      <div style="flex: 1; background: #27ae60; color: white; padding: 15px; border-radius: 8px; text-align: center;">
+      <div class="card" style="flex: 1; background: var(--color-success); color: white; text-align: center; margin-bottom: 0;">
         <h4 style="margin: 0 0 5px 0; font-weight: normal;">Ingresos (Mes)</h4>
         <h2 id="month-income" style="margin: 0;">$0.00</h2>
       </div>
-      <div style="flex: 1; background: #e74c3c; color: white; padding: 15px; border-radius: 8px; text-align: center;">
+      <div class="card" style="flex: 1; background: var(--color-danger); color: white; text-align: center; margin-bottom: 0;">
         <h4 style="margin: 0 0 5px 0; font-weight: normal;">Gastos (Mes)</h4>
         <h2 id="month-expense" style="margin: 0;">$0.00</h2>
       </div>
-      <div style="flex: 1; background: #f39c12; color: white; padding: 15px; border-radius: 8px; text-align: center;">
+      <div class="card" style="flex: 1; background: #f39c12; color: white; text-align: center; margin-bottom: 0;">
         <h4 style="margin: 0 0 5px 0; font-weight: normal;">Tasa de Ahorro</h4>
         <h2 id="savings-rate" style="margin: 0;">0%</h2>
       </div>
     </div>
 
-    <!-- NUEVO: GRÁFICA DE GASTOS -->
-    <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; text-align: center;">
-      <h3 style="margin-top: 0; color: #2c3e50;">📊 Gastos de este mes</h3>
-      <div style="max-width: 300px; margin: 0 auto;">
-        <canvas id="expense-chart"></canvas>
+    <!-- Gráfica de Gastos y Semáforo -->
+    <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+      <div class="card" style="flex: 1; text-align: center; min-width: 300px;">
+        <h3 style="margin-top: 0;">📊 Gastos del Mes</h3>
+        <div style="max-width: 250px; margin: 0 auto;">
+          <canvas id="expense-chart"></canvas>
+        </div>
+      </div>
+      <div class="card" style="flex: 1; min-width: 300px;">
+        <h3 style="margin-top: 0;">🚦 Presupuestos</h3>
+        <div id="budgets-container"><p class="text-muted">Cargando...</p></div>
       </div>
     </div>
 
-    <!-- Formulario para Crear Cuenta -->
-    <div style="margin-bottom: 20px;">
-      <h2>🏦 Añadir Nueva Cuenta</h2>
-      <form id="add-account-form" style="background: #ecf0f1; padding: 15px; border-radius: 8px; display: flex; gap: 10px; align-items: center;">
-        <input type="text" id="new-account-name" placeholder="Ej. Banamex, Nu, GBM" required style="padding: 8px; flex: 1;">
-        <input type="number" id="new-account-balance" placeholder="Saldo Inicial" step="0.01" required style="padding: 8px; width: 120px;">
-        <button type="submit" style="padding: 8px 15px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer;">Añadir</button>
+    <!-- Cuentas -->
+    <div class="card">
+      <h3 style="margin-top: 0;">🏦 Mis Cuentas</h3>
+      <form id="add-account-form" style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+        <input type="text" id="new-account-name" class="form-input" placeholder="Ej. Nu, GBM" required style="margin: 0; flex: 1; min-width: 150px;">
+        <input type="number" id="new-account-balance" class="form-input" placeholder="Saldo Inicial" step="0.01" required style="margin: 0; width: 120px;">
+        <button type="submit" class="btn btn-primary" style="width: auto;">Añadir</button>
       </form>
+      <div id="accounts-container"></div>
     </div>
 
-    <!-- Formulario para Crear Categoría -->
-    <div style="background: #ecf0f1; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-      <h3 style="margin-top: 0;">🏷️ Añadir Nueva Categoría</h3>
-      <form id="add-category-form" style="display: flex; gap: 10px; align-items: center;">
-        <input type="text" id="new-category-name" placeholder="Ej. Sueldo, Despensa, Streaming" required style="padding: 8px; flex: 1;">
-        <select id="new-category-type" required style="padding: 8px;">
+    <!-- Categorías -->
+    <div class="card">
+      <h3 style="margin-top: 0;">🏷️ Añadir Categoría</h3>
+      <form id="add-category-form" style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <input type="text" id="new-category-name" class="form-input" placeholder="Ej. Sueldo, Streaming" required style="margin: 0; flex: 1; min-width: 150px;">
+        <select id="new-category-type" class="form-select" required style="margin: 0; width: 120px;">
           <option value="">-- Tipo --</option>
           <option value="ingreso">Ingreso</option>
           <option value="gasto">Gasto</option>
         </select>
-        <button type="submit" style="padding: 8px 15px; background: #8e44ad; color: white; border: none; border-radius: 5px; cursor: pointer;">Añadir</button>
+        <input type="number" id="new-category-budget" class="form-input" placeholder="Límite $" step="0.01" style="margin: 0; width: 100px;">
+        <button type="submit" class="btn btn-primary" style="width: auto; background: #8e44ad;">Añadir</button>
       </form>
     </div>
-    
-    <div id="accounts-container"></div>
 
-    <hr style="margin: 30px 0;">
+    <!-- Transferencias -->
+    <div class="card">
+      <h3 style="margin-top: 0;">🔄 Registrar Movimiento</h3>
+      <form id="transfer-form">
+        <label>Monto:</label>
+        <input type="number" id="amount" class="form-input" step="0.01" required>
+        
+        <label>Categoría:</label>
+        <select id="category" class="form-select" required></select>
+        
+        <label>Origen:</label>
+        <select id="origin" class="form-select"></select>
+        
+        <label>Destino:</label>
+        <select id="destination" class="form-select"></select>
+        
+        <button type="submit" class="btn btn-success">Ejecutar Movimiento</button>
+      </form>
+    </div>
 
-    <h2>🔄 Registrar Movimiento</h2>
-    <form id="transfer-form" style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
-      <label>Monto: $<input type="number" id="amount" step="0.01" required></label><br><br>
-      <label>Origen: <select id="origin"></select></label><br><br>
-      <label>Destino: <select id="destination"></select></label><br><br>
-      <label>Categoría: <select id="category" required></select></label><br><br>
-      <button type="submit" style="padding: 10px 20px; cursor: pointer; background: #27ae60; color: white; border: none; border-radius: 5px;">Ejecutar</button>
-    </form>
-
-    <hr style="margin: 30px 0;">
-
-    <h2>📜 Últimos Movimientos</h2>
-    <div id="history-container"></div>
+    <!-- Historial -->
+    <div class="card">
+      <h3 style="margin-top: 0;">📜 Últimos Movimientos</h3>
+      <div id="history-container"></div>
+    </div>
 
   </div>
 
