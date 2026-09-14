@@ -1,44 +1,35 @@
 <?php
-// Archivo: public/index.php
-
 require_once __DIR__ . '/../vendor/autoload.php';
 
-// 1. Cargar variables de entorno
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
-// 2. Inicializar el Router
 $router = new \Bramus\Router\Router();
 
-// 3. Definir las Rutas (Endpoints)
-$router->get('/', function() {
-    echo "Bienvenido a la API de FinanceApp";
-});
-
-// Rutas de Autenticación
+// Auth
 $router->post('/api/login', '\App\Controllers\AuthController@login');
-$router->post('/api/logout', '\App\Controllers\AuthController@logout');
 $router->post('/api/register', '\App\Controllers\AuthController@register');
+$router->post('/api/logout', '\App\Controllers\AuthController@logout');
 
-// Ruta GET (La que ya tenías)
-$router->get('/api/accounts', '\App\Controllers\AccountController@getAllAccounts');
-// Debajo de tu ruta GET de accounts, añade esta:
-$router->post('/api/accounts', '\App\Controllers\AccountController@create');
-
-// NUEVA RUTA POST (Para transferir dinero)
-$router->post('/api/transfer', '\App\Controllers\TransactionController@transfer');
-
-// Añade esta línea debajo de tus otras rutas
-$router->get('/api/transactions', '\App\Controllers\TransactionController@getHistory');
-
+// User
 $router->get('/api/user', '\App\Controllers\UserController@getProfile');
 $router->post('/api/user/fire-target', '\App\Controllers\UserController@updateFireTarget');
 
+// Accounts & Categories
+$router->get('/api/accounts', '\App\Controllers\AccountController@getAllAccounts');
+$router->post('/api/accounts', '\App\Controllers\AccountController@create');
 $router->get('/api/categories', '\App\Controllers\CategoryController@getAllCategories');
 $router->post('/api/categories', '\App\Controllers\CategoryController@create');
 
+// Transactions
+$router->post('/api/transfer', '\App\Controllers\TransactionController@transfer');
+$router->get('/api/transactions', '\App\Controllers\TransactionController@getHistory');
+
+// Stats & BI
 $router->get('/api/stats/expenses', '\App\Controllers\StatsController@getExpenses');
 $router->get('/api/stats/cashflow', '\App\Controllers\StatsController@getCashFlow');
+$router->get('/api/stats/budgets', '\App\Controllers\StatsController@getBudgets');
+$router->post('/api/stats/snapshot', '\App\Controllers\StatsController@saveSnapshot');
+$router->get('/api/stats/history', '\App\Controllers\StatsController@getNetWorthHistory');
 
-// 4. Ejecutar el Router
 $router->run();
