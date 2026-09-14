@@ -2,21 +2,26 @@ services:
   web:
     build: .
     ports:
-      - "80:80"
+      - "8000:80"
     volumes:
       - ./:/var/www/html
     depends_on:
       - db
+    # NUEVO: Zona horaria para PHP
+    environment:
+      - TZ=America/Mexico_City
 
   db:
     image: mysql:8.0
     ports:
       - "3306:3306"
+    # ACTUALIZADO: Zona horaria para MySQL
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASS}
+      - TZ=America/Mexico_City
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASS}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASS}
     volumes:
       - db_data:/var/lib/mysql
       - ./db_init:/docker-entrypoint-initdb.d
@@ -27,7 +32,6 @@ services:
     working_dir: /app
     volumes:
       - ./frontend:/app
-      - ./public:/public
     ports:
       - "5173:5173"
     command: sh -c "npm install && npm run dev -- --host"
