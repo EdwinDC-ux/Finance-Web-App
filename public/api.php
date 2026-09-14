@@ -20,6 +20,8 @@ $router->get('/api/accounts', '\App\Controllers\AccountController@getAllAccounts
 $router->post('/api/accounts', '\App\Controllers\AccountController@create');
 $router->get('/api/categories', '\App\Controllers\CategoryController@getAllCategories');
 $router->post('/api/categories', '\App\Controllers\CategoryController@create');
+$router->get('/api/groups', '\App\Controllers\CategoryController@getGroups');
+$router->post('/api/groups', '\App\Controllers\CategoryController@createGroup');
 
 // Transactions
 $router->post('/api/transfer', '\App\Controllers\TransactionController@transfer');
