@@ -1,7 +1,11 @@
-import { type Account, type Category, type UserProfile, type BudgetStat } from './types';
+import { type Account, type Category, type UserProfile, type BudgetStat, type Group } from './types';
 import { showView } from './ui';
 import { buildAccountsTable, buildHistoryTable } from './components/Tables';
 import Chart from 'chart.js/auto';
+
+const addGroupForm = document.querySelector<HTMLFormElement>('#add-group-form')!;
+const newGroupName = document.querySelector<HTMLInputElement>('#new-group-name')!;
+const newCategoryGroup = document.querySelector<HTMLSelectElement>('#new-category-group')!;
 
 // Referencias DOM
 const netWorthEl = document.querySelector<HTMLHeadingElement>('#net-worth')!;
@@ -61,6 +65,7 @@ export async function loadAccounts() {
       // Disparamos el resto de las cargas
       saveNetWorthSnapshot(totalNetWorth);
       loadUserProfile(totalNetWorth);
+      loadGroups();
       loadCategories();
       loadHistory();
       loadCashFlow();
@@ -119,6 +124,24 @@ async function loadHistory() {
     }
   } catch (error) {
     console.error("Error:", error);
+  }
+}
+
+export async function loadGroups() {
+  try {
+    const response = await fetch('/api/groups');
+    if (response.status === 401) return;
+    const result = await response.json();
+    if (result.status === 'success') {
+      const groups: Group[] = result.data;
+      let options = `<option value="">-- Grupo --</option>`;
+      groups.forEach(g => {
+        options += `<option value="${g.id}">${g.nombre}</option>`;
+      });
+      newCategoryGroup.innerHTML = options;
+    }
+  } catch (error) {
+    console.error("Error cargando grupos:", error);
   }
 }
 
@@ -312,6 +335,28 @@ export function initDashboard() {
     }
   });
 
+  // Evento Crear Grupo
+  addGroupForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('/api/groups', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre: newGroupName.value })
+      });
+      const result = await response.json();
+      if (result.status === 'success') {
+        addGroupForm.reset();
+        loadGroups(); 
+      } else {
+        alert(result.message);
+      }
+    } catch (error) {
+      alert('Error al crear grupo');
+    }
+  });
+
+  // Evento Crear Categoría (Actualizado)
   addCategoryForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     try {
@@ -321,6 +366,7 @@ export function initDashboard() {
         body: JSON.stringify({ 
           name: newCategoryName.value, 
           type: newCategoryType.value,
+          grupo_id: parseInt(newCategoryGroup.value), // NUEVO
           budget_limit: parseFloat(newCategoryBudget.value) || 0
         })
       });
