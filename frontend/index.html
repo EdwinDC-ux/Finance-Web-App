@@ -112,18 +112,31 @@
       <div id="accounts-container"></div>
     </div>
 
-    <!-- Categorías -->
+    <!-- Grupos y Categorías -->
     <div class="card">
-      <h3 style="margin-top: 0;">🏷️ Añadir Categoría</h3>
+      <h3 style="margin-top: 0;">📁 Estructura de Gastos</h3>
+      
+      <!-- 1. Crear Grupo -->
+      <form id="add-group-form" style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+        <input type="text" id="new-group-name" class="form-input" placeholder="Nuevo Grupo (Ej. Hogar, Salud)" required style="margin: 0; flex: 1; min-width: 150px;">
+        <button type="submit" class="btn btn-primary" style="width: auto; background: #34495e;">Crear Grupo</button>
+      </form>
+
+      <hr style="margin: 15px 0; border-color: var(--border-color);">
+
+      <!-- 2. Crear Categoría -->
       <form id="add-category-form" style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <input type="text" id="new-category-name" class="form-input" placeholder="Ej. Sueldo, Streaming" required style="margin: 0; flex: 1; min-width: 150px;">
+        <select id="new-category-group" class="form-select" required style="margin: 0; width: 150px;">
+          <option value="">-- Grupo --</option>
+        </select>
+        <input type="text" id="new-category-name" class="form-input" placeholder="Categoría (Ej. Despensa)" required style="margin: 0; flex: 1; min-width: 150px;">
         <select id="new-category-type" class="form-select" required style="margin: 0; width: 120px;">
           <option value="">-- Tipo --</option>
           <option value="ingreso">Ingreso</option>
           <option value="gasto">Gasto</option>
         </select>
         <input type="number" id="new-category-budget" class="form-input" placeholder="Límite $" step="0.01" style="margin: 0; width: 100px;">
-        <button type="submit" class="btn btn-primary" style="width: auto; background: #8e44ad;">Añadir</button>
+        <button type="submit" class="btn btn-primary" style="width: auto; background: #8e44ad;">Añadir Categoría</button>
       </form>
     </div>
 
