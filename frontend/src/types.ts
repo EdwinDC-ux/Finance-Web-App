@@ -13,6 +13,11 @@ export interface Transaction {
     dest_name: string | null;
 }
 
+export interface Group {
+    id: number;
+    nombre: string;
+}
+
 export interface Category {
     id: number;
     name: string;
