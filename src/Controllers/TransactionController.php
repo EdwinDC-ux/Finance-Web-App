@@ -5,21 +5,18 @@ use App\Core\Database;
 use PDO;
 
 class TransactionController {
-    
-    // Función auxiliar para el cadenero
     private function checkAuth() {
         session_start();
         if (!isset($_SESSION['user_id'])) {
             http_response_code(401);
             echo json_encode(["status" => "error", "message" => "No autorizado"]);
-            exit; // Detiene la ejecución inmediatamente
+            exit;
         }
         return $_SESSION['user_id'];
     }
 
     public function transfer() {
-        $userId = $this->checkAuth(); // Protegido
-
+        $userId = $this->checkAuth();
         $json = file_get_contents('php://input');
         $data = json_decode($json, true);
 
@@ -29,36 +26,32 @@ class TransactionController {
         $destino = $data['destino'] ?? null;
 
         if ($monto <= 0) {
-            echo json_encode(["status" => "error", "message" => "El monto debe ser mayor a $0.00"]);
+            echo json_encode(["status" => "error", "message" => "Monto inválido"]);
             return;
         }
-
         if (empty($origen) && empty($destino)) {
-            echo json_encode(["status" => "error", "message" => "Selecciona al menos una cuenta"]);
+            echo json_encode(["status" => "error", "message" => "Selecciona una cuenta"]);
             return;
         }
-
         if (empty($categoria)) {
-            echo json_encode(["status" => "error", "message" => "Selecciona una categoria"]);
+            echo json_encode(["status" => "error", "message" => "Selecciona una categoría"]);
             return;
         }
-
         if ($origen === $destino) {
-            echo json_encode(["status" => "error", "message" => "Origen y destino no pueden ser iguales"]);
+            echo json_encode(["status" => "error", "message" => "Origen y destino iguales"]);
             return;
         }
 
         try {
             $pdo = Database::getConnection();
             
-            // Validar fondos si hay cuenta de origen
             if (!empty($origen)) {
-                $stmtCheck = $pdo->prepare("SELECT balance FROM accounts WHERE id = :origen AND user_id = :user_id");
+                $stmtCheck = $pdo->prepare("SELECT balance FROM TBL_CUENTAS WHERE id = :origen AND user_id = :user_id");
                 $stmtCheck->execute([':origen' => $origen, ':user_id' => $userId]);
                 $cuentaOrigen = $stmtCheck->fetch();
 
                 if (!$cuentaOrigen || $cuentaOrigen['balance'] < $monto) {
-                    echo json_encode(["status" => "error", "message" => "Fondos insuficientes o cuenta inválida"]);
+                    echo json_encode(["status" => "error", "message" => "Fondos insuficientes"]);
                     return;
                 }
             }
@@ -72,37 +65,27 @@ class TransactionController {
             ]);
 
             echo json_encode(["status" => "success", "message" => "Operación exitosa"]);
-
         } catch (\Exception $e) {
-            echo json_encode(["status" => "error", "message" => "Error interno: " . $e->getMessage()]);
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
         }
     }
 
     public function getHistory() {
-        $userId = $this->checkAuth(); // Protegido
-
+        $userId = $this->checkAuth();
         try {
             $pdo = Database::getConnection();
-            
-            // Solo traemos transacciones donde el origen o el destino pertenezcan a este usuario
-            $sql = "SELECT t.id, t.amount, t.created_at,
-                           c.name AS category,
-                           o.name AS origin_name, 
-                           d.name AS dest_name
-                    FROM transactions t
-                    LEFT JOIN accounts o ON t.origin_id = o.id
-                    LEFT JOIN accounts d ON t.destination_id = d.id
-                    LEFT JOIN categories c ON t.category_id = c.id
-                    WHERE (o.user_id = :user_id OR d.user_id = :user_id)
-                    ORDER BY t.created_at DESC 
-                    LIMIT 10";
+            // USAMOS LA VISTA MAESTRA
+            $sql = "SELECT transaccion_id as id, monto as amount, fecha as created_at, 
+                           categoria as category, cuenta_origen as origin_name, cuenta_destino as dest_name 
+                    FROM VW_DETALLE_TRANSACCIONES 
+                    WHERE user_id = :user_id 
+                    ORDER BY fecha DESC LIMIT 10";
                     
             $stmt = $pdo->prepare($sql);
             $stmt->execute([':user_id' => $userId]);
             $history = $stmt->fetchAll();
 
             echo json_encode(["status" => "success", "data" => $history]);
-
         } catch (\Exception $e) {
             echo json_encode(["status" => "error", "message" => $e->getMessage()]);
         }
