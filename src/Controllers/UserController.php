@@ -19,7 +19,7 @@ class UserController {
         $userId = $this->checkAuth();
         $pdo = Database::getConnection();
         
-        $stmt = $pdo->prepare("SELECT email, fire_target FROM users WHERE id = :id");
+        $stmt = $pdo->prepare("SELECT email, fire_target FROM TBL_USUARIOS WHERE id = :id");
         $stmt->execute([':id' => $userId]);
         $user = $stmt->fetch();
 
@@ -33,14 +33,9 @@ class UserController {
 
         $target = $data['fire_target'] ?? 0;
 
-        if ($target < 0) {
-            echo json_encode(["status" => "error", "message" => "La meta no puede ser negativa"]);
-            return;
-        }
-
         try {
             $pdo = Database::getConnection();
-            $stmt = $pdo->prepare("UPDATE users SET fire_target = :target WHERE id = :id");
+            $stmt = $pdo->prepare("UPDATE TBL_USUARIOS SET fire_target = :target WHERE id = :id");
             $stmt->execute([':target' => $target, ':id' => $userId]);
 
             echo json_encode(["status" => "success", "message" => "Meta FIRE actualizada"]);
