@@ -89,8 +89,57 @@ CREATE TABLE TBL_HISTORICO_PATRIMONIO (
     UNIQUE KEY unique_user_month (user_id, snapshot_date)
 );
 
+
 -- ==========================================
--- 5. STORED PROCEDURE (Actualizado a 3NF)
+-- 5. VISTAS (VIEWS)
+-- ==========================================
+
+CREATE VIEW VW_DETALLE_TRANSACCIONES AS
+SELECT 
+    t.id AS transaccion_id,
+    t.amount AS monto,
+    t.created_at AS fecha,
+    DATE_FORMAT(t.created_at, '%Y-%m') AS mes_anio,
+    t.origin_id,
+    o.nombre AS cuenta_origen,
+    t.destination_id,
+    d.nombre AS cuenta_destino,
+    t.category_id,
+    c.nombre AS categoria,
+    g.nombre AS grupo_categoria,
+    tc.nombre AS tipo_categoria,
+    -- Truco para saber de quién es la transacción (ya sea por origen o destino)
+    COALESCE(o.user_id, d.user_id) AS user_id 
+FROM TBL_TRANSACCIONES t
+LEFT JOIN TBL_CUENTAS o ON t.origin_id = o.id
+LEFT JOIN TBL_CUENTAS d ON t.destination_id = d.id
+JOIN CAT_CATEGORIAS c ON t.category_id = c.id
+JOIN CAT_GRUPOS_CATEGORIA g ON c.grupo_id = g.id
+JOIN CAT_TIPOS_CATEGORIA tc ON c.tipo_categoria_id = tc.id;
+
+CREATE VIEW VW_CONTROL_PRESUPUESTOS AS
+SELECT 
+    g.user_id,
+    DATE_FORMAT(pm.budget_month, '%Y-%m') AS mes_presupuesto,
+    c.id AS categoria_id,
+    c.nombre AS categoria,
+    g.nombre AS grupo,
+    pm.amount AS limite_presupuesto,
+    COALESCE((
+        SELECT SUM(t.amount) 
+        FROM TBL_TRANSACCIONES t 
+        WHERE t.category_id = c.id 
+          AND t.destination_id IS NULL -- Solo salidas de dinero
+          AND DATE_FORMAT(t.created_at, '%Y-%m') = DATE_FORMAT(pm.budget_month, '%Y-%m')
+    ), 0) AS gastado
+FROM CAT_CATEGORIAS c
+JOIN CAT_GRUPOS_CATEGORIA g ON c.grupo_id = g.id
+JOIN CAT_TIPOS_CATEGORIA tc ON c.tipo_categoria_id = tc.id
+JOIN TBL_PRESUPUESTOS_MENSUALES pm ON c.id = pm.category_id
+WHERE tc.nombre = 'Gasto';
+
+-- ==========================================
+-- 6. STORED PROCEDURE (Actualizado a 3NF)
 -- ==========================================
 DELIMITER //
 CREATE PROCEDURE sp_transferir_fondos(
@@ -122,50 +171,3 @@ BEGIN
     COMMIT;
 END //
 DELIMITER ;
-
--- ==========================================
--- 6. VISTAS (VIEWS)
--- ==========================================
-
-CREATE VIEW VW_DETALLE_TRANSACCIONES AS
-SELECT 
-    t.id AS transaccion_id,
-    t.amount AS monto,
-    t.created_at AS fecha,
-    DATE_FORMAT(t.created_at, '%Y-%m') AS mes_anio,
-    t.origin_id,
-    o.name AS cuenta_origen,
-    t.destination_id,
-    d.name AS cuenta_destino,
-    t.category_id,
-    c.nombre AS categoria,
-    g.nombre AS grupo_categoria,
-    tc.nombre AS tipo_categoria,
-    -- Truco para saber de quién es la transacción (ya sea por origen o destino)
-    COALESCE(o.user_id, d.user_id) AS user_id 
-FROM TBL_TRANSACCIONES t
-LEFT JOIN TBL_CUENTAS o ON t.origin_id = o.id
-LEFT JOIN TBL_CUENTAS d ON t.destination_id = d.id
-JOIN CAT_CATEGORIAS c ON t.category_id = c.id
-JOIN CAT_GRUPOS_CATEGORIA g ON c.grupo_id = g.id
-JOIN CAT_TIPOS_CATEGORIA tc ON c.tipo_categoria_id = tc.id;
-
-CREATE VIEW VW_CONTROL_PRESUPUESTOS AS
-SELECT 
-    g.user_id,
-    DATE_FORMAT(pm.budget_month, '%Y-%m') AS mes_presupuesto,
-    c.id AS categoria_id,
-    c.nombre AS categoria,
-    g.nombre AS grupo,
-    pm.amount AS limite_presupuesto,
-    -- Subconsulta para sumar los gastos reales de ese mes exacto
-    COALESCE((
-        SELECT SUM(t.amount) 
-        FROM TBL_TRANSACCIONES t 
-        WHERE t.category_id = c.id 
-          AND t.destination_id IS NULL -- Solo salidas de dinero
-          AND DATE_FORMAT(t.created_at, '%Y-%m') = DATE_FORMAT(pm.budget_month, '%Y-%m')
-    ), 0) AS gastado
-FROM CAT_CATEGORIAS c
-JOIN CAT_GRUPOS_CATEGORIA g ON c.grupo_id = g.id
-JOIN TBL_PRESUPUESTOS_MENSUALES pm ON c.id = pm.category_id;

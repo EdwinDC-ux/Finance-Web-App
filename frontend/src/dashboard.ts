@@ -283,7 +283,7 @@ async function loadNetWorthHistory() {
 function populateSelects(accounts: Account[]) {
   let options = '';
   accounts.forEach(acc => {
-    options += `<option value="${acc.id}">${acc.name}</option>`;
+    options += `<option value="${acc.id}">${acc.nombre}</option>`;
   });
   originSelect.innerHTML = `<option value="">-- Ingreso (Externo) --</option>` + options;
   destSelect.innerHTML = `<option value="">-- Gasto (Externo) --</option>` + options;

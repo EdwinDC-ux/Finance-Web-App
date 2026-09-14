@@ -8,7 +8,7 @@ export function buildAccountsTable(accounts: Account[]): string {
     
   accounts.forEach(acc => {
     html += `<tr>
-      <td>${acc.name}</td>
+      <td>${acc.nombre}</td>
       <td class="text-right fw-bold">$${parseFloat(acc.balance).toLocaleString('es-MX')}</td>
     </tr>`;
   });
