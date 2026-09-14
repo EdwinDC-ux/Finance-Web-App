@@ -17,28 +17,20 @@ class StatsController {
 
     public function getExpenses() {
         $userId = $this->checkAuth();
-        
+        $mesActual = date('Y-m');
         try {
             $pdo = Database::getConnection();
-            
-            // MAGIA SQL: Sumamos los montos, agrupados por categoría.
-            // Un "Gasto" es cuando el origen es una cuenta tuya, y el destino es NULL (Externo).
-            $sql = "SELECT c.name as category, SUM(t.amount) as total 
-                    FROM transactions t
-                    JOIN accounts a ON t.origin_id = a.id
-                    JOIN categories c ON t.category_id = c.id
-                    WHERE a.user_id = :user_id 
-                      AND t.destination_id IS NULL 
-                      AND MONTH(t.created_at) = MONTH(CURRENT_DATE())
-                      AND YEAR(t.created_at) = YEAR(CURRENT_DATE())
-                    GROUP BY c.id";
-                    
+            // USAMOS LA VISTA
+            $sql = "SELECT categoria as category, SUM(monto) as total 
+                    FROM VW_DETALLE_TRANSACCIONES 
+                    WHERE user_id = :user_id 
+                      AND destination_id IS NULL 
+                      AND tipo_categoria = 'Gasto'
+                      AND mes_anio = :mes
+                    GROUP BY categoria";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([':user_id' => $userId]);
-            $stats = $stmt->fetchAll();
-
-            echo json_encode(["status" => "success", "data" => $stats]);
-
+            $stmt->execute([':user_id' => $userId, ':mes' => $mesActual]);
+            echo json_encode(["status" => "success", "data" => $stmt->fetchAll()]);
         } catch (\Exception $e) {
             echo json_encode(["status" => "error", "message" => $e->getMessage()]);
         }
@@ -46,42 +38,74 @@ class StatsController {
 
     public function getCashFlow() {
         $userId = $this->checkAuth();
-        
+        $mesActual = date('Y-m');
         try {
             $pdo = Database::getConnection();
             
-            // 1. Calcular Ingresos del Mes (Origen es NULL, Destino es una cuenta del usuario)
-            $sqlIncome = "SELECT COALESCE(SUM(t.amount), 0) as total_income 
-                          FROM transactions t
-                          JOIN accounts d ON t.destination_id = d.id
-                          WHERE d.user_id = :user_id 
-                            AND t.origin_id IS NULL 
-                            AND MONTH(t.created_at) = MONTH(CURRENT_DATE())
-                            AND YEAR(t.created_at) = YEAR(CURRENT_DATE())";
+            $sqlIncome = "SELECT COALESCE(SUM(monto), 0) FROM VW_DETALLE_TRANSACCIONES 
+                          WHERE user_id = :uid AND origin_id IS NULL AND tipo_categoria = 'Ingreso' AND mes_anio = :mes";
             $stmtIn = $pdo->prepare($sqlIncome);
-            $stmtIn->execute([':user_id' => $userId]);
+            $stmtIn->execute([':uid' => $userId, ':mes' => $mesActual]);
             $income = $stmtIn->fetchColumn();
 
-            // 2. Calcular Gastos del Mes (Origen es cuenta del usuario, Destino es NULL)
-            $sqlExpense = "SELECT COALESCE(SUM(t.amount), 0) as total_expense 
-                           FROM transactions t
-                           JOIN accounts o ON t.origin_id = o.id
-                           WHERE o.user_id = :user_id 
-                             AND t.destination_id IS NULL 
-                             AND MONTH(t.created_at) = MONTH(CURRENT_DATE())
-                             AND YEAR(t.created_at) = YEAR(CURRENT_DATE())";
+            $sqlExpense = "SELECT COALESCE(SUM(monto), 0) FROM VW_DETALLE_TRANSACCIONES 
+                           WHERE user_id = :uid AND destination_id IS NULL AND tipo_categoria = 'Gasto' AND mes_anio = :mes";
             $stmtEx = $pdo->prepare($sqlExpense);
-            $stmtEx->execute([':user_id' => $userId]);
+            $stmtEx->execute([':uid' => $userId, ':mes' => $mesActual]);
             $expense = $stmtEx->fetchColumn();
 
-            echo json_encode([
-                "status" => "success", 
-                "data" => [
-                    "income" => (float)$income,
-                    "expense" => (float)$expense
-                ]
-            ]);
+            echo json_encode(["status" => "success", "data" => ["income" => (float)$income, "expense" => (float)$expense]]);
+        } catch (\Exception $e) {
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+        }
+    }
 
+    public function getBudgets() {
+        $userId = $this->checkAuth();
+        $mesActual = date('Y-m');
+        try {
+            $pdo = Database::getConnection();
+            // USAMOS LA VISTA DE PRESUPUESTOS
+            $sql = "SELECT categoria_id as id, categoria as name, limite_presupuesto as budget_limit, gastado as spent 
+                    FROM VW_CONTROL_PRESUPUESTOS 
+                    WHERE user_id = :user_id AND mes_presupuesto = :mes AND limite_presupuesto > 0";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([':user_id' => $userId, ':mes' => $mesActual]);
+            echo json_encode(["status" => "success", "data" => $stmt->fetchAll()]);
+        } catch (\Exception $e) {
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+        }
+    }
+
+    public function saveSnapshot() {
+        $userId = $this->checkAuth();
+        $json = file_get_contents('php://input');
+        $data = json_decode($json, true);
+        $netWorth = $data['net_worth'] ?? 0;
+        $snapshotDate = date('Y-m-01');
+
+        try {
+            $pdo = Database::getConnection();
+            $sql = "INSERT INTO TBL_HISTORICO_PATRIMONIO (user_id, snapshot_date, net_worth) 
+                    VALUES (:user_id, :snapshot_date, :net_worth)
+                    ON DUPLICATE KEY UPDATE net_worth = :net_worth";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([':user_id' => $userId, ':snapshot_date' => $snapshotDate, ':net_worth' => $netWorth]);
+            echo json_encode(["status" => "success"]);
+        } catch (\Exception $e) {
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+        }
+    }
+
+    public function getNetWorthHistory() {
+        $userId = $this->checkAuth();
+        try {
+            $pdo = Database::getConnection();
+            $sql = "SELECT snapshot_date, net_worth FROM TBL_HISTORICO_PATRIMONIO 
+                    WHERE user_id = :user_id ORDER BY snapshot_date ASC LIMIT 12";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([':user_id' => $userId]);
+            echo json_encode(["status" => "success", "data" => $stmt->fetchAll()]);
         } catch (\Exception $e) {
             echo json_encode(["status" => "error", "message" => $e->getMessage()]);
         }
