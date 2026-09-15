@@ -1,3 +1,4 @@
+SET NAMES utf8mb4;
 -- ==========================================
 -- 1. CATÁLOGOS UNIVERSALES (Diccionarios del Sistema)
 -- ==========================================
@@ -77,7 +78,7 @@ CREATE TABLE TBL_TRANSACCIONES (
     category_id INT NOT NULL,
     description VARCHAR(255) NULL,
     is_cleared BOOLEAN DEFAULT 1,
-    payment_period VARCHAR(7) NULL AFTER is_cleared;
+    payment_period VARCHAR(7) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (origin_id) REFERENCES TBL_CUENTAS(id),
     FOREIGN KEY (destination_id) REFERENCES TBL_CUENTAS(id),
@@ -102,7 +103,7 @@ CREATE VIEW VW_DETALLE_TRANSACCIONES AS
 SELECT 
     t.id AS transaccion_id, t.amount AS monto, t.transaction_date AS fecha,
     DATE_FORMAT(t.transaction_date, '%Y-%m') AS mes_anio,
-    t.origin_id, o.name AS cuenta_origen, t.destination_id, d.name AS cuenta_destino,
+    t.origin_id, o.nombre AS cuenta_origen, t.destination_id, d.nombre AS cuenta_destino,
     t.category_id, c.nombre AS categoria, g.nombre AS grupo_categoria, tc.nombre AS tipo_categoria,
     t.description AS descripcion, t.is_cleared AS conciliado, t.payment_period AS periodo_pago,
     COALESCE(o.user_id, d.user_id) AS user_id 
@@ -126,7 +127,7 @@ SELECT
         FROM TBL_TRANSACCIONES t 
         WHERE t.category_id = c.id 
           AND t.destination_id IS NULL -- Solo salidas de dinero
-          AND DATE_FORMAT(t.created_at, '%Y-%m') = DATE_FORMAT(pm.budget_month, '%Y-%m')
+          AND DATE_FORMAT(t.transaction_date, '%Y-%m') = DATE_FORMAT(pm.budget_month, '%Y-%m')
     ), 0) AS gastado
 FROM CAT_CATEGORIAS c
 JOIN CAT_GRUPOS_CATEGORIA g ON c.grupo_id = g.id

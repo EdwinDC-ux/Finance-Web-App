@@ -41,7 +41,7 @@ class AccountController {
         }
         try {
             $pdo = Database::getConnection();
-            $stmt = $pdo->prepare("INSERT INTO TBL_CUENTAS (user_id, tipo_cuenta_id, name, balance) VALUES (:user_id, :tipo, :name, :balance)");
+            $stmt = $pdo->prepare("INSERT INTO TBL_CUENTAS (user_id, tipo_cuenta_id, nombre, balance) VALUES (:user_id, :tipo, :name, :balance)");
             $stmt->execute([':user_id' => $userId, ':tipo' => $tipoCuentaId, ':name' => $name, ':balance' => $balance]);
             echo json_encode(["status" => "success", "message" => "Cuenta creada"]);
         } catch (\Exception $e) {
