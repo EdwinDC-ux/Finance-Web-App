@@ -37,12 +37,30 @@ const fireProgressBar = document.querySelector<HTMLDivElement>('#fire-progress-b
 const fireTargetDisplay = document.querySelector<HTMLSpanElement>('#fire-target-display')!;
 const editFireBtn = document.querySelector<HTMLAnchorElement>('#edit-fire-btn')!;
 
+const newAccountType = document.querySelector<HTMLSelectElement>('#new-account-type')!;
+const txDesc = document.querySelector<HTMLInputElement>('#tx-desc')!;
+const txDate = document.querySelector<HTMLInputElement>('#tx-date')!;
+const txPeriod = document.querySelector<HTMLInputElement>('#tx-period')!;
+const txCleared = document.querySelector<HTMLInputElement>('#tx-cleared')!;
+
 const expenseChartCtx = document.querySelector<HTMLCanvasElement>('#expense-chart')!;
 const netWorthChartCtx = document.querySelector<HTMLCanvasElement>('#net-worth-chart')!;
 let expenseChart: Chart | null = null;
 let netWorthChart: Chart | null = null;
+txDate.valueAsDate = new Date();
 
 // --- FUNCIONES DE CARGA ---
+async function loadAccountTypes() {
+  try {
+    const res = await fetch('/api/account-types');
+    const result = await res.json();
+    if (result.status === 'success') {
+      let options = '<option value="">-- Tipo --</option>';
+      result.data.forEach((t: any) => options += `<option value="${t.id}">${t.nombre}</option>`);
+      newAccountType.innerHTML = options;
+    }
+  } catch (e) { console.error(e); }
+}
 
 export async function loadAccounts() {
   try {
@@ -65,6 +83,7 @@ export async function loadAccounts() {
       // Disparamos el resto de las cargas
       saveNetWorthSnapshot(totalNetWorth);
       loadUserProfile(totalNetWorth);
+      loadAccountTypes();
       loadGroups();
       loadCategories();
       loadHistory();
@@ -316,24 +335,21 @@ function populateSelects(accounts: Account[]) {
 
 export function initDashboard() {
   addAccountForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch('/api/accounts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newAccountName.value, balance: parseFloat(newAccountBalance.value) })
-      });
-      const result = await response.json();
-      if (result.status === 'success') {
-        addAccountForm.reset();
-        loadAccounts(); 
-      } else {
-        alert(result.message);
-      }
-    } catch (error) {
-      alert('Error al crear la cuenta');
-    }
-  });
+  e.preventDefault();
+  try {
+    const response = await fetch('/api/accounts', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        name: newAccountName.value, 
+        balance: parseFloat(newAccountBalance.value),
+        tipo_cuenta_id: parseInt(newAccountType.value) // NUEVO
+      })
+    });
+    const result = await response.json();
+    if (result.status === 'success') { addAccountForm.reset(); loadAccounts(); } 
+    else { alert(result.message); }
+  } catch (error) { alert('Error al crear la cuenta'); }
+});
 
   // Evento Crear Grupo
   addGroupForm.addEventListener('submit', async (e) => {
@@ -389,26 +405,25 @@ export function initDashboard() {
       monto: parseFloat(amountInput.value),
       categoria: parseInt(categorySelect.value),
       origen: originSelect.value ? parseInt(originSelect.value) : null,
-      destino: destSelect.value ? parseInt(destSelect.value) : null
+      destino: destSelect.value ? parseInt(destSelect.value) : null,
+      fecha: txDate.value, // NUEVO
+      descripcion: txDesc.value, // NUEVO
+      is_cleared: txCleared.checked ? 1 : 0, // NUEVO
+      payment_period: txPeriod.value || null // NUEVO
     };
 
     try {
       const response = await fetch('/api/transfer', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       const result = await response.json();
-      
       if (result.status === 'success') {
         form.reset();
-        loadAccounts(); // Recarga todo el ecosistema
-      } else {
-        alert('Error: ' + result.message);
-      }
-    } catch (error) {
-      alert('Error de conexión');
-    }
+        txDate.valueAsDate = new Date(); // Restaurar fecha de hoy
+        loadAccounts(); 
+      } else { alert('Error: ' + result.message); }
+    } catch (error) { alert('Error de conexión'); }
   });
 
   editFireBtn.addEventListener('click', async (e) => {
