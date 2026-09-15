@@ -42,6 +42,7 @@ const txDesc = document.querySelector<HTMLInputElement>('#tx-desc')!;
 const txDate = document.querySelector<HTMLInputElement>('#tx-date')!;
 const txPeriod = document.querySelector<HTMLInputElement>('#tx-period')!;
 const txCleared = document.querySelector<HTMLInputElement>('#tx-cleared')!;
+const copyBudgetsBtn = document.querySelector<HTMLButtonElement>('#copy-budgets-btn')!;
 
 const expenseChartCtx = document.querySelector<HTMLCanvasElement>('#expense-chart')!;
 const netWorthChartCtx = document.querySelector<HTMLCanvasElement>('#net-worth-chart')!;
@@ -436,6 +437,24 @@ export function initDashboard() {
         body: JSON.stringify({ fire_target: parseFloat(newTarget) })
       });
       loadAccounts(); 
+    }
+  });
+
+  copyBudgetsBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    if (!confirm("¿Copiar los presupuestos del mes pasado a este mes?")) return;
+    
+    try {
+      const response = await fetch('/api/categories/copy-budgets', { method: 'POST' });
+      const result = await response.json();
+      if (result.status === 'success') {
+        // Recargamos la vista de presupuestos
+        if (typeof loadBudgets === 'function') loadBudgets();
+      } else {
+        alert(result.message);
+      }
+    } catch (error) {
+      alert('Error al copiar presupuestos');
     }
   });
 }
