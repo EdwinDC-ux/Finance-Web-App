@@ -106,6 +106,9 @@
       <h3 style="margin-top: 0;">🏦 Mis Cuentas</h3>
       <form id="add-account-form" style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
         <input type="text" id="new-account-name" class="form-input" placeholder="Ej. Nu, GBM" required style="margin: 0; flex: 1; min-width: 150px;">
+        <select id="new-account-type" class="form-select" required style="margin: 0; width: 150px;">
+          <option value="">-- Tipo --</option>
+        </select>
         <input type="number" id="new-account-balance" class="form-input" placeholder="Saldo Inicial" step="0.01" required style="margin: 0; width: 120px;">
         <button type="submit" class="btn btn-primary" style="width: auto;">Añadir</button>
       </form>
@@ -143,20 +146,48 @@
     <!-- Transferencias -->
     <div class="card">
       <h3 style="margin-top: 0;">🔄 Registrar Movimiento</h3>
-      <form id="transfer-form">
-        <label>Monto:</label>
-        <input type="number" id="amount" class="form-input" step="0.01" required>
+      <form id="transfer-form" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
         
-        <label>Categoría:</label>
-        <select id="category" class="form-select" required></select>
+        <div style="grid-column: span 2;">
+          <label>Concepto / Descripción:</label>
+          <input type="text" id="tx-desc" class="form-input" placeholder="Ej. Netflix + Spotify" required style="margin-bottom: 0;">
+        </div>
+
+        <div>
+          <label>Monto:</label>
+          <input type="number" id="amount" class="form-input" step="0.01" required style="margin-bottom: 0;">
+        </div>
+        <div>
+          <label>Fecha:</label>
+          <input type="date" id="tx-date" class="form-input" required style="margin-bottom: 0;">
+        </div>
+
+        <div>
+          <label>Categoría:</label>
+          <select id="category" class="form-select" required style="margin-bottom: 0;"></select>
+        </div>
+        <div>
+          <label>Periodo de Pago (Opcional):</label>
+          <input type="month" id="tx-period" class="form-input" style="margin-bottom: 0;">
+        </div>
+
+        <div>
+          <label>Origen:</label>
+          <select id="origin" class="form-select" style="margin-bottom: 0;"></select>
+        </div>
+        <div>
+          <label>Destino:</label>
+          <select id="destination" class="form-select" style="margin-bottom: 0;"></select>
+        </div>
+
+        <div style="grid-column: span 2; display: flex; align-items: center; gap: 10px;">
+          <input type="checkbox" id="tx-cleared" checked style="width: 20px; height: 20px;">
+          <label for="tx-cleared">Movimiento Liquidado (Check)</label>
+        </div>
         
-        <label>Origen:</label>
-        <select id="origin" class="form-select"></select>
-        
-        <label>Destino:</label>
-        <select id="destination" class="form-select"></select>
-        
-        <button type="submit" class="btn btn-success">Ejecutar Movimiento</button>
+        <div style="grid-column: span 2;">
+          <button type="submit" class="btn btn-success">Ejecutar Movimiento</button>
+        </div>
       </form>
     </div>
 
