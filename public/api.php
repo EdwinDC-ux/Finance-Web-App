@@ -26,6 +26,7 @@ $router->post('/api/groups', '\App\Controllers\CategoryController@createGroup');
 // Transactions
 $router->post('/api/transfer', '\App\Controllers\TransactionController@transfer');
 $router->get('/api/transactions', '\App\Controllers\TransactionController@getHistory');
+$router->get('/api/account-types', '\App\Controllers\AccountController@getTypes');
 
 // Stats & BI
 $router->get('/api/stats/expenses', '\App\Controllers\StatsController@getExpenses');
