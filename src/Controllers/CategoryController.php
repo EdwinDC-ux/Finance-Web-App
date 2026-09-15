@@ -97,4 +97,27 @@ class CategoryController {
             echo json_encode(["status" => "error", "message" => $e->getMessage()]);
         }
     }
+
+    public function copyLastMonthBudgets() {
+        $userId = $this->checkAuth();
+        try {
+            $pdo = Database::getConnection();
+            
+            $sql = "INSERT INTO TBL_PRESUPUESTOS_MENSUALES (category_id, budget_month, amount)
+                    SELECT pm.category_id, DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01'), pm.amount
+                    FROM TBL_PRESUPUESTOS_MENSUALES pm
+                    JOIN CAT_CATEGORIAS c ON pm.category_id = c.id
+                    JOIN CAT_GRUPOS_CATEGORIA g ON c.grupo_id = g.id
+                    WHERE g.user_id = :uid 
+                      AND pm.budget_month = DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH), '%Y-%m-01')
+                    ON DUPLICATE KEY UPDATE amount = pm.amount";
+                    
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([':uid' => $userId]);
+
+            echo json_encode(["status" => "success", "message" => "Presupuestos clonados con éxito"]);
+        } catch (\Exception $e) {
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+        }
+    }
 }
