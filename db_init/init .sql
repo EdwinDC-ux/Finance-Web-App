@@ -71,9 +71,13 @@ CREATE TABLE TBL_CUENTAS (
 CREATE TABLE TBL_TRANSACCIONES (
     id INT AUTO_INCREMENT PRIMARY KEY,
     amount DECIMAL(15,2) NOT NULL,
+    transaction_date DATE NOT NULL DEFAULT (CURRENT_DATE),
     origin_id INT NULL,
     destination_id INT NULL,
     category_id INT NOT NULL,
+    description VARCHAR(255) NULL,
+    is_cleared BOOLEAN DEFAULT 1,
+    payment_period VARCHAR(7) NULL AFTER is_cleared;
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (origin_id) REFERENCES TBL_CUENTAS(id),
     FOREIGN KEY (destination_id) REFERENCES TBL_CUENTAS(id),
@@ -96,19 +100,11 @@ CREATE TABLE TBL_HISTORICO_PATRIMONIO (
 
 CREATE VIEW VW_DETALLE_TRANSACCIONES AS
 SELECT 
-    t.id AS transaccion_id,
-    t.amount AS monto,
-    t.created_at AS fecha,
-    DATE_FORMAT(t.created_at, '%Y-%m') AS mes_anio,
-    t.origin_id,
-    o.nombre AS cuenta_origen,
-    t.destination_id,
-    d.nombre AS cuenta_destino,
-    t.category_id,
-    c.nombre AS categoria,
-    g.nombre AS grupo_categoria,
-    tc.nombre AS tipo_categoria,
-    -- Truco para saber de quién es la transacción (ya sea por origen o destino)
+    t.id AS transaccion_id, t.amount AS monto, t.transaction_date AS fecha,
+    DATE_FORMAT(t.transaction_date, '%Y-%m') AS mes_anio,
+    t.origin_id, o.name AS cuenta_origen, t.destination_id, d.name AS cuenta_destino,
+    t.category_id, c.nombre AS categoria, g.nombre AS grupo_categoria, tc.nombre AS tipo_categoria,
+    t.description AS descripcion, t.is_cleared AS conciliado, t.payment_period AS periodo_pago,
     COALESCE(o.user_id, d.user_id) AS user_id 
 FROM TBL_TRANSACCIONES t
 LEFT JOIN TBL_CUENTAS o ON t.origin_id = o.id
@@ -141,33 +137,22 @@ WHERE tc.nombre = 'Gasto';
 -- ==========================================
 -- 6. STORED PROCEDURE (Actualizado a 3NF)
 -- ==========================================
+DROP PROCEDURE IF EXISTS sp_transferir_fondos;
 DELIMITER //
 CREATE PROCEDURE sp_transferir_fondos(
-    IN p_monto DECIMAL(15,2),
-    IN p_origen INT,
-    IN p_destino INT,
-    IN p_categoria INT
+    IN p_monto DECIMAL(15,2), IN p_fecha DATE, IN p_origen INT, IN p_destino INT,
+    IN p_categoria INT, IN p_descripcion VARCHAR(255), IN p_cleared BOOLEAN, IN p_periodo VARCHAR(7)
 )
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
-    BEGIN
-        ROLLBACK;
-        RESIGNAL;
-    END;
+    BEGIN ROLLBACK; RESIGNAL; END;
 
     START TRANSACTION;
-
-    IF p_origen IS NOT NULL THEN
-        UPDATE TBL_CUENTAS SET balance = balance - p_monto WHERE id = p_origen;
-    END IF;
-
-    IF p_destino IS NOT NULL THEN
-        UPDATE TBL_CUENTAS SET balance = balance + p_monto WHERE id = p_destino;
-    END IF;
-
-    INSERT INTO TBL_TRANSACCIONES (amount, origin_id, destination_id, category_id) 
-    VALUES (p_monto, p_origen, p_destino, p_categoria);
-
+    IF p_origen IS NOT NULL THEN UPDATE TBL_CUENTAS SET balance = balance - p_monto WHERE id = p_origen; END IF;
+    IF p_destino IS NOT NULL THEN UPDATE TBL_CUENTAS SET balance = balance + p_monto WHERE id = p_destino; END IF;
+    
+    INSERT INTO TBL_TRANSACCIONES (amount, transaction_date, origin_id, destination_id, category_id, description, is_cleared, payment_period) 
+    VALUES (p_monto, p_fecha, p_origen, p_destino, p_categoria, p_descripcion, p_cleared, p_periodo);
     COMMIT;
 END //
 DELIMITER ;
