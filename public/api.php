@@ -34,5 +34,6 @@ $router->get('/api/stats/cashflow', '\App\Controllers\StatsController@getCashFlo
 $router->get('/api/stats/budgets', '\App\Controllers\StatsController@getBudgets');
 $router->post('/api/stats/snapshot', '\App\Controllers\StatsController@saveSnapshot');
 $router->get('/api/stats/history', '\App\Controllers\StatsController@getNetWorthHistory');
+$router->post('/api/categories/copy-budgets', '\App\Controllers\CategoryController@copyLastMonthBudgets');
 
 $router->run();
