@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   server: {
     host: true,
+    allowedHosts: ['.trycloudflare.com'],  // ← AGREGA ESTA LÍNEA
     proxy: {
       '/api': {
         target: 'http://web:80',
