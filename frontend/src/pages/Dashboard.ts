@@ -53,7 +53,6 @@ export function renderDashboard(): string {
                 <div class="card">
                     <div class="flex-between">
                         <h3 style="margin-top: 0;">🚦 Presupuestos</h3>
-                        <button id="copy-budgets-btn" class="btn btn-primary" style="width: auto; padding: 5px 10px; font-size: 0.8rem;">Copiar Mes Anterior</button>
                     </div>
                     <div id="budgets-container"><p class="text-muted">Cargando...</p></div>
                 </div>
@@ -73,13 +72,6 @@ export function initDashboard() {
             await fetch('/api/user/fire-target', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fire_target: parseFloat(newTarget) }) });
             loadDashboardData(); 
         }
-    });
-
-    document.querySelector('#copy-budgets-btn')?.addEventListener('click', async (e) => {
-        e.preventDefault();
-        if (!confirm("¿Copiar presupuestos del mes pasado?")) return;
-        const res = await fetch('/api/categories/copy-budgets', { method: 'POST' });
-        if (res.ok) loadBudgets();
     });
 
     loadDashboardData();
