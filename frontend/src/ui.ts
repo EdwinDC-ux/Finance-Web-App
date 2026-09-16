@@ -4,6 +4,7 @@ import { renderLogin, initLogin, renderRegister, initRegister } from './pages/Au
 import { renderDashboard, initDashboard } from './pages/Dashboard';
 import { renderTransactions, initTransactions } from './pages/Transactions';
 import { renderSettings, initSettings } from './pages/Settings';
+import { renderBudgets, initBudgets } from './pages/Budgets';
 import { render404, init404 } from './pages/Error404';
 import { validateSession } from './auth';
 
@@ -35,6 +36,7 @@ export function showView(view: string, pushState: boolean = true) {
 
     switch (view) {
         case 'dashboard': content.innerHTML = renderDashboard(); initDashboard(); break;
+        case 'budgets': content.innerHTML = renderBudgets(); initBudgets(); break;
         case 'transactions': content.innerHTML = renderTransactions(); initTransactions(); break;
         case 'settings': content.innerHTML = renderSettings(); initSettings(); break;
         case '404':
@@ -47,6 +49,7 @@ export function showView(view: string, pushState: boolean = true) {
 
 function initNavigation() {
     document.querySelector('#nav-dashboard')?.addEventListener('click', (e) => { e.preventDefault(); showView('dashboard'); });
+    document.querySelector('#nav-budgets')?.addEventListener('click', (e) => { e.preventDefault(); showView('budgets'); });
     document.querySelector('#nav-transactions')?.addEventListener('click', (e) => { e.preventDefault(); showView('transactions'); });
     document.querySelector('#nav-settings')?.addEventListener('click', (e) => { e.preventDefault(); showView('settings'); });
     document.querySelector('#nav-logout')?.addEventListener('click', async (e) => {
