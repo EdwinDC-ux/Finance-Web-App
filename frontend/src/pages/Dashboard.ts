@@ -1,5 +1,6 @@
-import { type Account, type BudgetStat } from '../types';
+import { type Account, type BudgetStat, type CreditCardStat } from '../types';
 import Chart from 'chart.js/auto';
+import { showToast } from '../components/Toast';
 
 export function renderDashboard(): string {
     return `
@@ -36,6 +37,12 @@ export function renderDashboard(): string {
                     </div>
                 </div>
             </div>
+            <div class="col-md-12">
+                <div class="card" style="flex: 1; min-width: 300px;">
+                    <h3 style="margin-top: 0;">💳 Tarjetas de Crédito</h3>
+                    <div id="credit-cards-container"><p class="text-muted">No hay tarjetas registradas.</p></div>
+                </div>
+            </div>
             <div class="col-md-6">
                 <div class="card" style="text-align: center;">
                     <h3 style="margin-top: 0;">📊 Gastos del Mes</h3>
@@ -46,7 +53,6 @@ export function renderDashboard(): string {
                 <div class="card">
                     <div class="flex-between">
                         <h3 style="margin-top: 0;">🚦 Presupuestos</h3>
-                        <button id="copy-budgets-btn" class="btn btn-primary" style="width: auto; padding: 5px 10px; font-size: 0.8rem;">Copiar Mes Anterior</button>
                     </div>
                     <div id="budgets-container"><p class="text-muted">Cargando...</p></div>
                 </div>
@@ -68,13 +74,6 @@ export function initDashboard() {
         }
     });
 
-    document.querySelector('#copy-budgets-btn')?.addEventListener('click', async (e) => {
-        e.preventDefault();
-        if (!confirm("¿Copiar presupuestos del mes pasado?")) return;
-        const res = await fetch('/api/categories/copy-budgets', { method: 'POST' });
-        if (res.ok) loadBudgets();
-    });
-
     loadDashboardData();
 }
 
@@ -92,9 +91,12 @@ async function loadDashboardData() {
             
             loadUserProfile(totalNetWorth);
             loadCashFlow();
+            loadCreditCards();
             loadStats();
             loadBudgets();
             loadNetWorthHistory();
+        } else {
+            showToast(result.message, 'error');
         }
     } catch (e) { console.error(e); }
 }
@@ -110,6 +112,8 @@ async function loadUserProfile(currentNetWorth: number) {
             let percentage = Math.min((currentNetWorth / target) * 100, 100);
             percentageEl.innerText = `${percentage.toFixed(2)}%`; progressBar.style.width = `${percentage}%`;
         } else { percentageEl.innerText = `0%`; progressBar.style.width = `0%`; }
+    } else {
+        showToast(result.message, 'error');
     }
 }
 
@@ -121,6 +125,8 @@ async function loadCashFlow() {
         document.querySelector<HTMLHeadingElement>('#month-expense')!.innerText = `$${expense.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
         const savingsRateEl = document.querySelector<HTMLHeadingElement>('#savings-rate')!;
         savingsRateEl.innerText = income > 0 ? `${((income - expense) / income * 100).toFixed(1)}%` : `0.0%`;
+    } else {
+        showToast(result.message, 'error');
     }
 }
 
@@ -132,6 +138,8 @@ async function loadStats() {
         expenseChart = new Chart(document.querySelector<HTMLCanvasElement>('#expense-chart')!, {
             type: 'doughnut', data: { labels, datasets: [{ data: totals, backgroundColor: ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22'] }] }
         });
+    } else {
+        showToast(result.message, 'error');
     }
 }
 
@@ -148,6 +156,8 @@ async function loadBudgets() {
             html += `<div style="margin-bottom: 15px;"><div class="flex-between" style="font-size: 0.9rem; margin-bottom: 5px;"><strong>${b.name}</strong><span>$${spent.toLocaleString('es-MX')} / $${limit.toLocaleString('es-MX')}</span></div><div style="width: 100%; background: #ecf0f1; height: 10px; border-radius: 5px; overflow: hidden;"><div style="width: ${percentage}%; height: 100%; background-color: ${color}; transition: width 0.5s ease;"></div></div></div>`;
         });
         container.innerHTML = html;
+    } else {
+        showToast(result.message, 'error');
     }
 }
 
@@ -160,5 +170,53 @@ async function loadNetWorthHistory() {
         netWorthChart = new Chart(document.querySelector<HTMLCanvasElement>('#net-worth-chart')!, {
             type: 'line', data: { labels, datasets: [{ label: 'Patrimonio', data: totals, borderColor: '#1abc9c', backgroundColor: 'rgba(26, 188, 156, 0.2)', fill: true, tension: 0.4 }] }
         });
+    } else {
+        showToast(result.message, 'error');
     }
+}
+
+async function loadCreditCards() {
+    try {
+        const res = await fetch('/api/stats/credit-cards');
+        if (res.status === 401) return;
+        const result = await res.json();
+        
+        if (result.status === 'success') {
+            const container = document.querySelector<HTMLDivElement>('#credit-cards-container')!;
+            if (result.data.length === 0) {
+                container.innerHTML = "<p class='text-muted'><small>No tienes tarjetas de crédito con límite asignado.</small></p>";
+                return;
+            }
+
+            let html = '';
+            result.data.forEach((cc: CreditCardStat) => {
+                const limit = parseFloat(cc.credit_limit);
+                // En partida doble, si gastas con TC, el saldo se vuelve negativo. 
+                // Tomamos el valor absoluto para saber la deuda real.
+                const debt = Math.abs(parseFloat(cc.balance)); 
+                let percentage = (debt / limit) * 100;
+                if (percentage > 100) percentage = 100;
+
+                // Semáforo de deuda: Verde (<30%), Amarillo (<70%), Rojo (>70%)
+                let colorClass = 'background-color: var(--color-success);'; 
+                if (percentage >= 30) colorClass = 'background-color: var(--color-warning);'; 
+                if (percentage >= 70) colorClass = 'background-color: var(--color-danger);'; 
+
+                html += `
+                    <div style="margin-bottom: 15px;">
+                        <div class="flex-between" style="font-size: 0.9rem; margin-bottom: 5px;">
+                            <strong>${cc.nombre}</strong>
+                            <span>$${debt.toLocaleString('es-MX')} / $${limit.toLocaleString('es-MX')}</span>
+                        </div>
+                        <div style="width: 100%; background: #ecf0f1; height: 10px; border-radius: 5px; overflow: hidden;">
+                            <div style="width: ${percentage}%; height: 100%; transition: width 0.5s ease; ${colorClass}"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        } else {
+            showToast(result.message, 'error');
+        }
+    } catch (error) { console.error("Error cargando tarjetas:", error); }
 }

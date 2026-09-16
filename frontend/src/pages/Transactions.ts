@@ -1,5 +1,7 @@
 import { type Account, type Category } from '../types';
 import { buildHistoryTable } from '../components/Tables';
+import { showToast } from '../components/Toast';
+
 
 export function renderTransactions(): string {
     return `
@@ -70,5 +72,8 @@ async function loadSelects() {
 
 async function loadHistory() {
     const res = await fetch('/api/transactions'); const result = await res.json();
-    if (result.status === 'success') document.querySelector<HTMLDivElement>('#history-container')!.innerHTML = buildHistoryTable(result.data);
+    if (result.status === 'success') 
+        document.querySelector<HTMLDivElement>('#history-container')!.innerHTML = buildHistoryTable(result.data);
+    else
+        showToast(result.message, 'error');
 }

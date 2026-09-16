@@ -110,4 +110,21 @@ class StatsController {
             echo json_encode(["status" => "error", "message" => $e->getMessage()]);
         }
     }
+
+    public function getCreditCards() {
+        $userId = $this->checkAuth();
+        try {
+            $pdo = \App\Core\Database::getConnection();
+            // Buscamos cuentas de Crédito (tipo_cuenta_id = 2) que tengan un límite asignado
+            $sql = "SELECT nombre, balance, credit_limit 
+                    FROM TBL_CUENTAS 
+                    WHERE user_id = :uid AND tipo_cuenta_id = 2 AND credit_limit > 0";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([':uid' => $userId]);
+            
+            echo json_encode(["status" => "success", "data" => $stmt->fetchAll()]);
+        } catch (\Exception $e) {
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+        }
+    }
 }

@@ -35,5 +35,7 @@ $router->get('/api/stats/budgets', '\App\Controllers\StatsController@getBudgets'
 $router->post('/api/stats/snapshot', '\App\Controllers\StatsController@saveSnapshot');
 $router->get('/api/stats/history', '\App\Controllers\StatsController@getNetWorthHistory');
 $router->post('/api/categories/copy-budgets', '\App\Controllers\CategoryController@copyLastMonthBudgets');
+$router->get('/api/stats/credit-cards', '\App\Controllers\StatsController@getCreditCards');
+$router->post('/api/categories/set-budget', '\App\Controllers\CategoryController@setBudget');
 
 $router->run();

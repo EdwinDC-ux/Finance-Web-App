@@ -1,5 +1,6 @@
 import { type Group } from '../types';
 import { buildAccountsTable } from '../components/Tables';
+import { showToast } from '../components/Toast';
 
 export function renderSettings(): string {
     return `
@@ -7,10 +8,11 @@ export function renderSettings(): string {
             <div class="col-md-6">
                 <div class="card">
                     <h3>🏦 Mis Cuentas</h3>
-                    <form id="add-account-form" class="d-flex gap-2 mb-3">
-                        <input type="text" id="new-account-name" class="form-input m-0" placeholder="Nombre" required>
-                        <select id="new-account-type" class="form-select m-0" required><option value="">Tipo</option></select>
-                        <input type="number" id="new-account-balance" class="form-input m-0" placeholder="Saldo" step="0.01" required>
+                    <form id="add-account-form" class="d-flex gap-2 mb-3 flex-wrap">
+                        <input type="text" id="new-account-name" class="form-input m-0" placeholder="Nombre" required style="flex: 1; min-width: 150px;">
+                        <select id="new-account-type" class="form-select m-0 w-auto" required><option value="">Tipo</option></select>
+                        <input type="number" id="new-account-balance" class="form-input m-0 w-auto" placeholder="Saldo Actual" step="0.01" required>
+                        <input type="number" id="new-account-limit" class="form-input m-0 w-auto" placeholder="Límite de Crédito" step="0.01" style="display: none;">
                         <button type="submit" class="btn btn-primary w-auto">Añadir</button>
                     </form>
                     <div id="accounts-container"></div>
@@ -43,6 +45,22 @@ export function initSettings() {
     const addAccountForm = document.querySelector<HTMLFormElement>('#add-account-form')!;
     const addGroupForm = document.querySelector<HTMLFormElement>('#add-group-form')!;
     const addCategoryForm = document.querySelector<HTMLFormElement>('#add-category-form')!;
+    const newAccountType = document.querySelector<HTMLSelectElement>('#new-account-type')!;
+    const newAccountLimit = document.querySelector<HTMLInputElement>('#new-account-limit')!;
+
+    // Mostrar límite solo si es Crédito (Asumiendo que Crédito es el ID 2)
+    newAccountType.addEventListener('change', () => {
+        // Si el texto de la opción seleccionada incluye "Crédito"
+        const selectedText = newAccountType.options[newAccountType.selectedIndex].text;
+        if (selectedText.includes('Crédito')) {
+            newAccountLimit.style.display = 'block';
+            newAccountLimit.required = true;
+        } else {
+            newAccountLimit.style.display = 'none';
+            newAccountLimit.required = false;
+            newAccountLimit.value = '';
+        }
+    });
 
     addAccountForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -51,10 +69,13 @@ export function initSettings() {
             body: JSON.stringify({ 
                 name: document.querySelector<HTMLInputElement>('#new-account-name')!.value, 
                 balance: parseFloat(document.querySelector<HTMLInputElement>('#new-account-balance')!.value),
-                tipo_cuenta_id: parseInt(document.querySelector<HTMLSelectElement>('#new-account-type')!.value)
+                tipo_cuenta_id: parseInt(newAccountType.value),
+                credit_limit: parseFloat(newAccountLimit.value) || 0 // NUEVO
             })
         });
-        addAccountForm.reset(); loadAccountsData();
+        addAccountForm.reset(); 
+        newAccountLimit.style.display = 'none'; // Ocultar de nuevo
+        loadAccountsData();
     });
 
     addGroupForm.addEventListener('submit', async (e) => {
@@ -87,7 +108,10 @@ export function initSettings() {
 
 async function loadAccountsData() {
     const res = await fetch('/api/accounts'); const result = await res.json();
-    if (result.status === 'success') document.querySelector<HTMLDivElement>('#accounts-container')!.innerHTML = buildAccountsTable(result.data);
+    if (result.status === 'success')
+        document.querySelector<HTMLDivElement>('#accounts-container')!.innerHTML = buildAccountsTable(result.data);
+    else
+        showToast(result.message, 'error');
 }
 
 async function loadGroupsData() {
@@ -96,6 +120,8 @@ async function loadGroupsData() {
         let opts = '<option value="">Grupo</option>';
         result.data.forEach((g: Group) => opts += `<option value="${g.id}">${g.nombre}</option>`);
         document.querySelector<HTMLSelectElement>('#new-category-group')!.innerHTML = opts;
+    } else {
+        showToast(result.message, 'error');
     }
 }
 
@@ -105,5 +131,7 @@ async function loadAccountTypes() {
         let opts = '<option value="">Tipo</option>';
         result.data.forEach((t: any) => opts += `<option value="${t.id}">${t.nombre}</option>`);
         document.querySelector<HTMLSelectElement>('#new-account-type')!.innerHTML = opts;
+    } else {
+        showToast(result.message, 'error');
     }
 }

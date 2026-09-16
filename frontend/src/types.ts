@@ -44,3 +44,9 @@ export interface BudgetStat {
     budget_limit: string;
     spent: string;
 }
+
+export interface CreditCardStat {
+    nombre: string;
+    balance: string;
+    credit_limit: string;
+}

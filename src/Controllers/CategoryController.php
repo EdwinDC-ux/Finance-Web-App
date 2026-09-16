@@ -120,4 +120,39 @@ class CategoryController {
             echo json_encode(["status" => "error", "message" => $e->getMessage()]);
         }
     }
+
+    public function setBudget() {
+        $userId = $this->checkAuth();
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        $categoryId = $data['category_id'] ?? null;
+        $amount = $data['amount'] ?? 0;
+
+        if (!$categoryId) {
+            echo json_encode(["status" => "error", "message" => "Selecciona una categoría"]); return;
+        }
+
+        try {
+            $pdo = Database::getConnection();
+            
+            // Validar que la categoría pertenezca al usuario
+            $stmtCheck = $pdo->prepare("SELECT c.id FROM CAT_CATEGORIAS c JOIN CAT_GRUPOS_CATEGORIA g ON c.grupo_id = g.id WHERE c.id = :cat AND g.user_id = :uid");
+            $stmtCheck->execute([':cat' => $categoryId, ':uid' => $userId]);
+            if (!$stmtCheck->fetch()) {
+                echo json_encode(["status" => "error", "message" => "Categoría inválida"]); return;
+            }
+
+            // Insertar o Actualizar el presupuesto del mes actual
+            $mesActual = date('Y-m-01');
+            $sql = "INSERT INTO TBL_PRESUPUESTOS_MENSUALES (category_id, budget_month, amount) 
+                    VALUES (:cat, :mes, :monto) 
+                    ON DUPLICATE KEY UPDATE amount = :monto";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([':cat' => $categoryId, ':mes' => $mesActual, ':monto' => $amount]);
+
+            echo json_encode(["status" => "success", "message" => "Presupuesto actualizado"]);
+        } catch (\Exception $e) {
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+        }
+    }
 }
