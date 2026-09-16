@@ -1,10 +1,13 @@
+// Archivo: src/main.ts
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import './style.css';
-import { showView } from './ui';
-import { initAuth } from './auth';
-import { initDashboard, loadAccounts } from './dashboard';
+import { validateSession } from './auth';
 
-initAuth();
-initDashboard();
+window.addEventListener('popstate', (event) => {
+    const view = event.state?.view || window.location.pathname.replace('/', '') || 'login';
+    validateSession(view, false); 
+});
 
-showView('loading');
-loadAccounts();
+const currentPath = window.location.pathname.replace('/', '');
+validateSession(currentPath);

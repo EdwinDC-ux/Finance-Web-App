@@ -6,120 +6,32 @@
   --color-danger: #e74c3c;
   --color-danger-hover: #c0392b;
   --color-warning: #f1c40f;
-  
   --bg-body: #f4f6f9;
   --bg-card: #ffffff;
   --text-main: #2c3e50;
   --text-muted: #7f8c8d;
   --border-color: #e0e0e0;
-
   --radius-md: 8px;
   --shadow-sm: 0 4px 6px rgba(0,0,0,0.05);
 }
-
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: var(--bg-body);
-  color: var(--text-main);
-  padding: 20px;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-h1, h2, h3, h4 { color: var(--text-main); }
-a { color: var(--color-primary); text-decoration: none; }
-a:hover { text-decoration: underline; }
-
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-body); color: var(--text-main); }
 .view-container { display: none; }
 .view-active { display: block; }
-
-.card {
-  background-color: var(--bg-card);
-  padding: 25px;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  margin-bottom: 20px;
-}
-
-.auth-card {
-  max-width: 400px;
-  margin: 50px auto;
-  text-align: center;
-}
-
-.card-dark {
-  background-color: var(--text-main);
-  color: white;
-  text-align: center;
-}
+.card { background-color: var(--bg-card); padding: 25px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); margin-bottom: 20px; }
+.auth-card { max-width: 400px; margin: 50px auto; text-align: center; background: white; padding: 30px; border-radius: 10px; box-shadow: var(--shadow-sm); }
+.card-dark { background-color: var(--text-main); color: white; text-align: center; }
 .card-dark h1 { color: white; }
 .card-dark h3 { color: #bdc3c7; margin: 0; }
-
 .net-worth-amount { font-size: 3rem; margin: 10px 0; }
-
-.fire-widget {
-  margin-top: 20px;
-  background-color: #34495e;
-  border-radius: var(--radius-md);
-  padding: 15px;
-}
-.progress-track {
-  width: 100%;
-  background-color: #1abc9c;
-  height: 10px;
-  border-radius: 5px;
-  overflow: hidden;
-}
-.progress-fill {
-  background-color: var(--color-warning);
-  height: 100%;
-  transition: width 0.5s ease;
-}
+.fire-widget { margin-top: 20px; background-color: #34495e; border-radius: var(--radius-md); padding: 15px; }
+.progress-track { width: 100%; background-color: #1abc9c; height: 10px; border-radius: 5px; overflow: hidden; }
+.progress-fill { background-color: var(--color-warning); height: 100%; transition: width 0.5s ease; }
 .fire-meta-text { margin: 10px 0 0 0; font-size: 0.8rem; color: #95a5a6; }
 .link-edit { color: #3498db; margin-left: 10px; cursor: pointer; }
-
-.form-input, .form-select {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  box-sizing: border-box;
-}
-
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  color: white;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-  width: 100%;
-}
-.btn-primary { background-color: var(--color-primary); }
-.btn-primary:hover { background-color: var(--color-primary-hover); }
-.btn-success { background-color: var(--color-success); }
-.btn-success:hover { background-color: var(--color-success-hover); }
-.btn-danger { background-color: var(--color-danger); width: auto; padding: 6px 15px; }
-.btn-danger:hover { background-color: var(--color-danger-hover); }
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-  background-color: var(--bg-card);
-}
-.data-table th, .data-table td {
-  border: 1px solid var(--border-color);
-  padding: 12px 8px;
-}
-.data-table th {
-  background-color: var(--bg-body);
-  text-align: left;
-  color: var(--text-muted);
-}
-
+.form-input, .form-select { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: var(--radius-md); box-sizing: border-box; }
+.data-table { width: 100%; border-collapse: collapse; margin-top: 10px; background-color: var(--bg-card); }
+.data-table th, .data-table td { border: 1px solid var(--border-color); padding: 12px 8px; }
+.data-table th { background-color: var(--bg-body); text-align: left; color: var(--text-muted); }
 .text-right { text-align: right; }
 .text-success { color: var(--color-success); font-weight: bold; }
 .text-danger { color: var(--color-danger); font-weight: bold; }
