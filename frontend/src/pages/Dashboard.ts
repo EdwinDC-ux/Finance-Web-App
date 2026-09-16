@@ -1,4 +1,4 @@
-import { type Account, type BudgetStat } from '../types';
+import { type Account, type BudgetStat, type CreditCardStat } from '../types';
 import Chart from 'chart.js/auto';
 
 export function renderDashboard(): string {
@@ -184,7 +184,7 @@ async function loadCreditCards() {
             }
 
             let html = '';
-            result.data.forEach((cc: any) => {
+            result.data.forEach((cc: CreditCardStat) => {
                 const limit = parseFloat(cc.credit_limit);
                 // En partida doble, si gastas con TC, el saldo se vuelve negativo. 
                 // Tomamos el valor absoluto para saber la deuda real.
