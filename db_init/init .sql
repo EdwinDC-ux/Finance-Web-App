@@ -65,6 +65,7 @@ CREATE TABLE TBL_CUENTAS (
     tipo_cuenta_id INT NOT NULL,
     nombre VARCHAR(50) NOT NULL,
     balance DECIMAL(15,2) DEFAULT 0.00,
+    credit_limit DECIMAL(15,2) DEFAULT 0.00,
     FOREIGN KEY (user_id) REFERENCES TBL_USUARIOS(id),
     FOREIGN KEY (tipo_cuenta_id) REFERENCES CAT_TIPOS_CUENTA(id)
 );
