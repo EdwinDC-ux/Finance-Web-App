@@ -32,17 +32,25 @@ class AccountController {
     public function create() {
         $userId = $this->checkAuth();
         $data = json_decode(file_get_contents('php://input'), true);
+        
         $name = trim($data['name'] ?? '');
         $balance = $data['balance'] ?? 0;
         $tipoCuentaId = $data['tipo_cuenta_id'] ?? null;
+        $creditLimit = $data['credit_limit'] ?? 0; 
 
         if (empty($name) || empty($tipoCuentaId)) {
             echo json_encode(["status" => "error", "message" => "Nombre y Tipo son obligatorios"]); return;
         }
         try {
-            $pdo = Database::getConnection();
-            $stmt = $pdo->prepare("INSERT INTO TBL_CUENTAS (user_id, tipo_cuenta_id, nombre, balance) VALUES (:user_id, :tipo, :name, :balance)");
-            $stmt->execute([':user_id' => $userId, ':tipo' => $tipoCuentaId, ':name' => $name, ':balance' => $balance]);
+            $pdo = \App\Core\Database::getConnection();
+            $stmt = $pdo->prepare("INSERT INTO TBL_CUENTAS (user_id, tipo_cuenta_id, name, balance, credit_limit) VALUES (:user_id, :tipo, :name, :balance, :limit)");
+            $stmt->execute([
+                ':user_id' => $userId, 
+                ':tipo' => $tipoCuentaId, 
+                ':name' => $name, 
+                ':balance' => $balance,
+                ':limit' => $creditLimit
+            ]);
             echo json_encode(["status" => "success", "message" => "Cuenta creada"]);
         } catch (\Exception $e) {
             echo json_encode(["status" => "error", "message" => $e->getMessage()]);
