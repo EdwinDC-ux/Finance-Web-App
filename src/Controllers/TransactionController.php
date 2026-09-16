@@ -30,12 +30,33 @@ class TransactionController {
 
         try {
             $pdo = Database::getConnection();
+            // Validar fondos o límite de crédito si hay cuenta de origen
             if (!empty($origen)) {
-                $stmtCheck = $pdo->prepare("SELECT balance FROM TBL_CUENTAS WHERE id = :origen AND user_id = :user_id");
+                // CORRECCIÓN: Usamos 'nombre' y traemos el tipo y el límite
+                $stmtCheck = $pdo->prepare("SELECT balance, tipo_cuenta_id, credit_limit FROM TBL_CUENTAS WHERE id = :origen AND user_id = :user_id");
                 $stmtCheck->execute([':origen' => $origen, ':user_id' => $userId]);
                 $cuentaOrigen = $stmtCheck->fetch();
-                if (!$cuentaOrigen || $cuentaOrigen['balance'] < $monto) {
-                    echo json_encode(["status" => "error", "message" => "Fondos insuficientes"]); return;
+
+                if (!$cuentaOrigen) {
+                    echo json_encode(["status" => "error", "message" => "Cuenta inválida"]);
+                    return;
+                }
+
+                // Lógica para Tarjetas de Crédito (Asumiendo que el ID 2 es Crédito)
+                if ($cuentaOrigen['tipo_cuenta_id'] == 2) {
+                    // La deuda es el valor absoluto del balance (ej. si balance es -500, la deuda es 500)
+                    $deudaActual = abs($cuentaOrigen['balance']);
+                    if (($deudaActual + $monto) > $cuentaOrigen['credit_limit']) {
+                        echo json_encode(["status" => "error", "message" => "Límite de crédito excedido"]);
+                        return;
+                    }
+                } 
+                // Lógica para Débito/Inversión
+                else {
+                    if ($cuentaOrigen['balance'] < $monto) {
+                        echo json_encode(["status" => "error", "message" => "Fondos insuficientes en la cuenta"]);
+                        return;
+                    }
                 }
             }
             
