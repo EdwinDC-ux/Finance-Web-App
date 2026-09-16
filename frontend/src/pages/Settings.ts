@@ -1,5 +1,6 @@
 import { type Group } from '../types';
 import { buildAccountsTable } from '../components/Tables';
+import { showToast } from '../components/Toast';
 
 export function renderSettings(): string {
     return `
@@ -107,7 +108,10 @@ export function initSettings() {
 
 async function loadAccountsData() {
     const res = await fetch('/api/accounts'); const result = await res.json();
-    if (result.status === 'success') document.querySelector<HTMLDivElement>('#accounts-container')!.innerHTML = buildAccountsTable(result.data);
+    if (result.status === 'success')
+        document.querySelector<HTMLDivElement>('#accounts-container')!.innerHTML = buildAccountsTable(result.data);
+    else
+        showToast(result.message, 'error');
 }
 
 async function loadGroupsData() {
@@ -116,6 +120,8 @@ async function loadGroupsData() {
         let opts = '<option value="">Grupo</option>';
         result.data.forEach((g: Group) => opts += `<option value="${g.id}">${g.nombre}</option>`);
         document.querySelector<HTMLSelectElement>('#new-category-group')!.innerHTML = opts;
+    } else {
+        showToast(result.message, 'error');
     }
 }
 
@@ -125,5 +131,7 @@ async function loadAccountTypes() {
         let opts = '<option value="">Tipo</option>';
         result.data.forEach((t: any) => opts += `<option value="${t.id}">${t.nombre}</option>`);
         document.querySelector<HTMLSelectElement>('#new-account-type')!.innerHTML = opts;
+    } else {
+        showToast(result.message, 'error');
     }
 }

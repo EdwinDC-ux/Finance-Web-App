@@ -1,5 +1,6 @@
 import { type Account, type BudgetStat, type CreditCardStat } from '../types';
 import Chart from 'chart.js/auto';
+import { showToast } from '../components/Toast';
 
 export function renderDashboard(): string {
     return `
@@ -102,6 +103,8 @@ async function loadDashboardData() {
             loadStats();
             loadBudgets();
             loadNetWorthHistory();
+        } else {
+            showToast(result.message, 'error');
         }
     } catch (e) { console.error(e); }
 }
@@ -117,6 +120,8 @@ async function loadUserProfile(currentNetWorth: number) {
             let percentage = Math.min((currentNetWorth / target) * 100, 100);
             percentageEl.innerText = `${percentage.toFixed(2)}%`; progressBar.style.width = `${percentage}%`;
         } else { percentageEl.innerText = `0%`; progressBar.style.width = `0%`; }
+    } else {
+        showToast(result.message, 'error');
     }
 }
 
@@ -128,6 +133,8 @@ async function loadCashFlow() {
         document.querySelector<HTMLHeadingElement>('#month-expense')!.innerText = `$${expense.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
         const savingsRateEl = document.querySelector<HTMLHeadingElement>('#savings-rate')!;
         savingsRateEl.innerText = income > 0 ? `${((income - expense) / income * 100).toFixed(1)}%` : `0.0%`;
+    } else {
+        showToast(result.message, 'error');
     }
 }
 
@@ -139,6 +146,8 @@ async function loadStats() {
         expenseChart = new Chart(document.querySelector<HTMLCanvasElement>('#expense-chart')!, {
             type: 'doughnut', data: { labels, datasets: [{ data: totals, backgroundColor: ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22'] }] }
         });
+    } else {
+        showToast(result.message, 'error');
     }
 }
 
@@ -155,6 +164,8 @@ async function loadBudgets() {
             html += `<div style="margin-bottom: 15px;"><div class="flex-between" style="font-size: 0.9rem; margin-bottom: 5px;"><strong>${b.name}</strong><span>$${spent.toLocaleString('es-MX')} / $${limit.toLocaleString('es-MX')}</span></div><div style="width: 100%; background: #ecf0f1; height: 10px; border-radius: 5px; overflow: hidden;"><div style="width: ${percentage}%; height: 100%; background-color: ${color}; transition: width 0.5s ease;"></div></div></div>`;
         });
         container.innerHTML = html;
+    } else {
+        showToast(result.message, 'error');
     }
 }
 
@@ -167,6 +178,8 @@ async function loadNetWorthHistory() {
         netWorthChart = new Chart(document.querySelector<HTMLCanvasElement>('#net-worth-chart')!, {
             type: 'line', data: { labels, datasets: [{ label: 'Patrimonio', data: totals, borderColor: '#1abc9c', backgroundColor: 'rgba(26, 188, 156, 0.2)', fill: true, tension: 0.4 }] }
         });
+    } else {
+        showToast(result.message, 'error');
     }
 }
 
@@ -210,6 +223,8 @@ async function loadCreditCards() {
                 `;
             });
             container.innerHTML = html;
+        } else {
+            showToast(result.message, 'error');
         }
     } catch (error) { console.error("Error cargando tarjetas:", error); }
 }

@@ -1,5 +1,6 @@
 import { showView } from '../ui';
 import { validateSession } from '../auth';
+import { showToast } from '../components/Toast';
 
 export function renderLogin(): string {
     return `
@@ -41,7 +42,7 @@ export function initLogin() {
                 validateSession();
             } else { 
                 showView('login', false); 
-                alert('Credenciales incorrectas'); 
+                showToast("Credenciales incorrectas", 'error');
             }
         } catch (error) { 
             showView('login', false); 
@@ -92,7 +93,7 @@ export function initRegister() {
                 showView('login'); 
             } else { 
                 showView('register', false); 
-                alert(result.message); 
+                showToast(result.message, 'error');
             }
         } catch (error) { 
             showView('register', false); 
