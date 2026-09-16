@@ -43,7 +43,7 @@ class AccountController {
         }
         try {
             $pdo = \App\Core\Database::getConnection();
-            $stmt = $pdo->prepare("INSERT INTO TBL_CUENTAS (user_id, tipo_cuenta_id, name, balance, credit_limit) VALUES (:user_id, :tipo, :name, :balance, :limit)");
+            $stmt = $pdo->prepare("INSERT INTO TBL_CUENTAS (user_id, tipo_cuenta_id, nombre, balance, credit_limit) VALUES (:user_id, :tipo, :name, :balance, :limit)");
             $stmt->execute([
                 ':user_id' => $userId, 
                 ':tipo' => $tipoCuentaId, 
