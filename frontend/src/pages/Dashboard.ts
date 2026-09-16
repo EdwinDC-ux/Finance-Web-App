@@ -36,6 +36,12 @@ export function renderDashboard(): string {
                     </div>
                 </div>
             </div>
+            <div class="col-md-12">
+                <div class="card" style="flex: 1; min-width: 300px;">
+                    <h3 style="margin-top: 0;">💳 Tarjetas de Crédito</h3>
+                    <div id="credit-cards-container"><p class="text-muted">No hay tarjetas registradas.</p></div>
+                </div>
+            </div>
             <div class="col-md-6">
                 <div class="card" style="text-align: center;">
                     <h3 style="margin-top: 0;">📊 Gastos del Mes</h3>
@@ -92,6 +98,7 @@ async function loadDashboardData() {
             
             loadUserProfile(totalNetWorth);
             loadCashFlow();
+            loadCreditCards();
             loadStats();
             loadBudgets();
             loadNetWorthHistory();
@@ -161,4 +168,48 @@ async function loadNetWorthHistory() {
             type: 'line', data: { labels, datasets: [{ label: 'Patrimonio', data: totals, borderColor: '#1abc9c', backgroundColor: 'rgba(26, 188, 156, 0.2)', fill: true, tension: 0.4 }] }
         });
     }
+}
+
+async function loadCreditCards() {
+    try {
+        const res = await fetch('/api/stats/credit-cards');
+        if (res.status === 401) return;
+        const result = await res.json();
+        
+        if (result.status === 'success') {
+            const container = document.querySelector<HTMLDivElement>('#credit-cards-container')!;
+            if (result.data.length === 0) {
+                container.innerHTML = "<p class='text-muted'><small>No tienes tarjetas de crédito con límite asignado.</small></p>";
+                return;
+            }
+
+            let html = '';
+            result.data.forEach((cc: any) => {
+                const limit = parseFloat(cc.credit_limit);
+                // En partida doble, si gastas con TC, el saldo se vuelve negativo. 
+                // Tomamos el valor absoluto para saber la deuda real.
+                const debt = Math.abs(parseFloat(cc.balance)); 
+                let percentage = (debt / limit) * 100;
+                if (percentage > 100) percentage = 100;
+
+                // Semáforo de deuda: Verde (<30%), Amarillo (<70%), Rojo (>70%)
+                let colorClass = 'background-color: var(--color-success);'; 
+                if (percentage >= 30) colorClass = 'background-color: var(--color-warning);'; 
+                if (percentage >= 70) colorClass = 'background-color: var(--color-danger);'; 
+
+                html += `
+                    <div style="margin-bottom: 15px;">
+                        <div class="flex-between" style="font-size: 0.9rem; margin-bottom: 5px;">
+                            <strong>${cc.name}</strong>
+                            <span>$${debt.toLocaleString('es-MX')} / $${limit.toLocaleString('es-MX')}</span>
+                        </div>
+                        <div style="width: 100%; background: #ecf0f1; height: 10px; border-radius: 5px; overflow: hidden;">
+                            <div style="width: ${percentage}%; height: 100%; transition: width 0.5s ease; ${colorClass}"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+    } catch (error) { console.error("Error cargando tarjetas:", error); }
 }
