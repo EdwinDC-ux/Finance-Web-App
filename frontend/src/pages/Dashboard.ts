@@ -200,7 +200,7 @@ async function loadCreditCards() {
                 html += `
                     <div style="margin-bottom: 15px;">
                         <div class="flex-between" style="font-size: 0.9rem; margin-bottom: 5px;">
-                            <strong>${cc.name}</strong>
+                            <strong>${cc.nombre}</strong>
                             <span>$${debt.toLocaleString('es-MX')} / $${limit.toLocaleString('es-MX')}</span>
                         </div>
                         <div style="width: 100%; background: #ecf0f1; height: 10px; border-radius: 5px; overflow: hidden;">
