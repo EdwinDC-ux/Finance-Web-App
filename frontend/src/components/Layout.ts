@@ -5,6 +5,7 @@ export function renderLayout(): string {
                 <a class="navbar-brand" href="#">💰 FinanceSaaS</a>
                 <div class="d-flex gap-2">
                     <button id="nav-dashboard" class="btn btn-sm btn-outline-light">📊 Resumen</button>
+                    <button id="nav-budgets" class="btn btn-sm btn-outline-light">🚦 Presupuestos</button>
                     <button id="nav-transactions" class="btn btn-sm btn-outline-light">📜 Movimientos</button>
                     <button id="nav-settings" class="btn btn-sm btn-outline-light">⚙️ Configuración</button>
                     <button id="nav-logout" class="btn btn-sm btn-danger">Salir</button>
