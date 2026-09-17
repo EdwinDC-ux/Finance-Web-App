@@ -31,7 +31,8 @@ CREATE TABLE TBL_USUARIOS (
 CREATE TABLE CAT_GRUPOS_CATEGORIA (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    nombre VARCHAR(50) NOT NULL, -- Ej. 'Alimentos', 'Hogar'
+    nombre VARCHAR(50) NOT NULL,
+    is_active BOOLEAN DEFAULT 1,
     FOREIGN KEY (user_id) REFERENCES TBL_USUARIOS(id)
 );
 
@@ -39,7 +40,8 @@ CREATE TABLE CAT_CATEGORIAS (
     id INT AUTO_INCREMENT PRIMARY KEY,
     grupo_id INT NOT NULL,
     tipo_categoria_id INT NOT NULL,
-    nombre VARCHAR(50) NOT NULL, -- Ej. 'Despensa', 'Renta'
+    nombre VARCHAR(50) NOT NULL,
+    is_active BOOLEAN DEFAULT 1,
     FOREIGN KEY (grupo_id) REFERENCES CAT_GRUPOS_CATEGORIA(id),
     FOREIGN KEY (tipo_categoria_id) REFERENCES CAT_TIPOS_CATEGORIA(id)
 );
@@ -66,6 +68,7 @@ CREATE TABLE TBL_CUENTAS (
     nombre VARCHAR(50) NOT NULL,
     balance DECIMAL(15,2) DEFAULT 0.00,
     credit_limit DECIMAL(15,2) DEFAULT 0.00,
+    is_active BOOLEAN DEFAULT 1,
     FOREIGN KEY (user_id) REFERENCES TBL_USUARIOS(id),
     FOREIGN KEY (tipo_cuenta_id) REFERENCES CAT_TIPOS_CUENTA(id)
 );
@@ -81,6 +84,7 @@ CREATE TABLE TBL_TRANSACCIONES (
     is_cleared BOOLEAN DEFAULT 1,
     payment_period VARCHAR(7) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT 1,
     FOREIGN KEY (origin_id) REFERENCES TBL_CUENTAS(id),
     FOREIGN KEY (destination_id) REFERENCES TBL_CUENTAS(id),
     FOREIGN KEY (category_id) REFERENCES CAT_CATEGORIAS(id)
@@ -113,28 +117,25 @@ LEFT JOIN TBL_CUENTAS o ON t.origin_id = o.id
 LEFT JOIN TBL_CUENTAS d ON t.destination_id = d.id
 JOIN CAT_CATEGORIAS c ON t.category_id = c.id
 JOIN CAT_GRUPOS_CATEGORIA g ON c.grupo_id = g.id
-JOIN CAT_TIPOS_CATEGORIA tc ON c.tipo_categoria_id = tc.id;
+JOIN CAT_TIPOS_CATEGORIA tc ON c.tipo_categoria_id = tc.id
+WHERE t.is_active = 1;
 
 CREATE VIEW VW_CONTROL_PRESUPUESTOS AS
 SELECT 
-    g.user_id,
-    DATE_FORMAT(pm.budget_month, '%Y-%m') AS mes_presupuesto,
-    c.id AS categoria_id,
-    c.nombre AS categoria,
-    g.nombre AS grupo,
-    pm.amount AS limite_presupuesto,
+    g.user_id, DATE_FORMAT(pm.budget_month, '%Y-%m') AS mes_presupuesto,
+    c.id AS categoria_id, c.nombre AS categoria, g.nombre AS grupo, pm.amount AS limite_presupuesto,
     COALESCE((
-        SELECT SUM(t.amount) 
-        FROM TBL_TRANSACCIONES t 
-        WHERE t.category_id = c.id 
-          AND t.destination_id IS NULL -- Solo salidas de dinero
-          AND DATE_FORMAT(t.transaction_date, '%Y-%m') = DATE_FORMAT(pm.budget_month, '%Y-%m')
+        SELECT SUM(t.amount) FROM TBL_TRANSACCIONES t 
+        WHERE t.category_id = c.id AND t.destination_id IS NULL AND t.is_active = 1
+            AND DATE_FORMAT(t.transaction_date, '%Y-%m') = DATE_FORMAT(pm.budget_month, '%Y-%m')
     ), 0) AS gastado
 FROM CAT_CATEGORIAS c
 JOIN CAT_GRUPOS_CATEGORIA g ON c.grupo_id = g.id
 JOIN CAT_TIPOS_CATEGORIA tc ON c.tipo_categoria_id = tc.id
 JOIN TBL_PRESUPUESTOS_MENSUALES pm ON c.id = pm.category_id
-WHERE tc.nombre = 'Gasto';
+WHERE tc.nombre = 'Gasto' 
+    AND c.is_active = 1
+    AND g.is_active = 1;
 
 -- ==========================================
 -- 6. STORED PROCEDURE (Actualizado a 3NF)
@@ -156,5 +157,49 @@ BEGIN
     INSERT INTO TBL_TRANSACCIONES (amount, transaction_date, origin_id, destination_id, category_id, description, is_cleared, payment_period) 
     VALUES (p_monto, p_fecha, p_origen, p_destino, p_categoria, p_descripcion, p_cleared, p_periodo);
     COMMIT;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE sp_reversar_transaccion(
+    IN p_transaccion_id INT
+)
+BEGIN
+    DECLARE v_monto DECIMAL(15,2);
+    DECLARE v_origen INT;
+    DECLARE v_destino INT;
+    DECLARE v_is_active BOOLEAN;
+
+    -- Si hay error, abortamos
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    -- 1. Leemos los datos originales de la transacción
+    SELECT amount, origin_id, destination_id, is_active 
+    INTO v_monto, v_origen, v_destino, v_is_active
+    FROM TBL_TRANSACCIONES WHERE id = p_transaccion_id;
+
+    -- 2. Solo procedemos si la transacción existe y está activa
+    IF v_is_active = 1 THEN
+        START TRANSACTION;
+
+        -- 3. Reversamos el Origen (Le sumamos lo que le habíamos restado)
+        IF v_origen IS NOT NULL THEN
+            UPDATE TBL_CUENTAS SET balance = balance + v_monto WHERE id = v_origen;
+        END IF;
+
+        -- 4. Reversamos el Destino (Le restamos lo que le habíamos sumado)
+        IF v_destino IS NOT NULL THEN
+            UPDATE TBL_CUENTAS SET balance = balance - v_monto WHERE id = v_destino;
+        END IF;
+
+        -- 5. Aplicamos el Soft Delete
+        UPDATE TBL_TRANSACCIONES SET is_active = 0 WHERE id = p_transaccion_id;
+
+        COMMIT;
+    END IF;
 END //
 DELIMITER ;
