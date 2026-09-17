@@ -1,6 +1,6 @@
 export function renderLayout(): string {
     return `
-        <div class="d-flex" style="height: 100vh; width: 100vw; overflow: hidden; background-color: var(--bg-body);">
+        <div class="d-flex" style="height: 100dvh; width: 100vw; overflow: hidden; background-color: var(--bg-body);">
             
             <!-- SIDEBAR (Menú Deslizable en Móvil, Fijo en Desktop) -->
             <div class="offcanvas-md offcanvas-start text-white d-flex flex-column flex-shrink-0 p-3" 

@@ -28,12 +28,25 @@ export function renderSettings(): string {
                 </div>
                 <div class="card">
                     <h3>🏷️ Crear Categoría</h3>
-                    <form id="add-category-form" class="d-flex gap-2 flex-wrap">
-                        <select id="new-category-group" class="form-select m-0 w-auto" required><option value="">Grupo</option></select>
-                        <input type="text" id="new-category-name" class="form-input m-0 flex-grow-1" placeholder="Nombre" required>
-                        <select id="new-category-type" class="form-select m-0 w-auto" required><option value="ingreso">Ingreso</option><option value="gasto">Gasto</option></select>
-                        <input type="number" id="new-category-budget" class="form-input m-0 w-auto" placeholder="Límite $" step="0.01">
-                        <button type="submit" class="btn btn-primary w-auto">Añadir</button>
+                    <form id="add-category-form" class="row g-2 align-items-center">
+                        <div class="col-12 col-md-3">
+                            <select id="new-category-group" class="form-select m-0" required><option value="">Grupo</option></select>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <input type="text" id="new-category-name" class="form-input m-0" placeholder="Nombre" required>
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <select id="new-category-type" class="form-select m-0" required>
+                                <option value="ingreso">Ingreso</option>
+                                <option value="gasto">Gasto</option>
+                            </select>
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <input type="number" id="new-category-budget" class="form-input m-0" placeholder="Límite $" step="0.01">
+                        </div>
+                        <div class="col-12 col-md-1">
+                            <button type="submit" class="btn btn-primary w-100">Añadir</button>
+                        </div>
                     </form>
                 </div>
             </div>
