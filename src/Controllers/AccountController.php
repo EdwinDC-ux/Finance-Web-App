@@ -56,4 +56,34 @@ class AccountController {
             echo json_encode(["status" => "error", "message" => $e->getMessage()]);
         }
     }
+
+    public function update($id) {
+        $userId = $this->checkAuth();
+        $data = json_decode(file_get_contents('php://input'), true);
+        try {
+            $pdo = Database::getConnection();
+            $stmt = $pdo->prepare("UPDATE TBL_CUENTAS SET name = :name, tipo_cuenta_id = :tipo WHERE id = :id AND user_id = :uid");
+            $stmt->execute([':name' => $data['name'], ':tipo' => $data['tipo_cuenta_id'], ':id' => $id, ':uid' => $userId]);
+            echo json_encode(["status" => "success", "message" => "Cuenta actualizada"]);
+        } catch (\Exception $e) { echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
+    }
+
+    public function delete($id) {
+        $userId = $this->checkAuth();
+        try {
+            $pdo = Database::getConnection();
+            // Validar que el saldo sea 0
+            $stmtCheck = $pdo->prepare("SELECT balance FROM TBL_CUENTAS WHERE id = :id AND user_id = :uid");
+            $stmtCheck->execute([':id' => $id, ':uid' => $userId]);
+            $cuenta = $stmtCheck->fetch();
+
+            if (!$cuenta || $cuenta['balance'] != 0) {
+                echo json_encode(["status" => "error", "message" => "Solo puedes eliminar cuentas con saldo $0.00"]); return;
+            }
+            // Soft Delete
+            $stmt = $pdo->prepare("UPDATE TBL_CUENTAS SET is_active = 0 WHERE id = :id AND user_id = :uid");
+            $stmt->execute([':id' => $id, ':uid' => $userId]);
+            echo json_encode(["status" => "success", "message" => "Cuenta eliminada"]);
+        } catch (\Exception $e) { echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
+    }
 }
