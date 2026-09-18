@@ -72,8 +72,22 @@ async function loadSelects() {
 
 async function loadHistory() {
     const res = await fetch('/api/transactions'); const result = await res.json();
-    if (result.status === 'success') 
+    if (result.status === 'success') {
         document.querySelector<HTMLDivElement>('#history-container')!.innerHTML = buildHistoryTable(result.data);
-    else
+
+        document.querySelectorAll('.btn-delete-tx').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const id = (e.target as HTMLButtonElement).getAttribute('data-id');
+                if (confirm('¿Estás seguro de eliminar (reversar) este movimiento?')) {
+                    const delRes = await fetch(`/api/transactions/${id}`, { method: 'DELETE' });
+                    const delResult = await delRes.json();
+                    if (delRes.ok && delResult.status === 'success') {
+                        alert('Movimiento eliminado');
+                        loadHistory(); // Recargar tabla
+                    } else { alert(delResult.message); }
+                }
+            });
+        });
+    } else
         showToast(result.message, 'error');
 }
