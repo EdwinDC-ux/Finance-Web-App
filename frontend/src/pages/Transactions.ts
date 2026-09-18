@@ -8,7 +8,7 @@ export function renderTransactions(): string {
         <div class="row">
             <div class="col-md-4">
                 <div class="card">
-                    <h3 style="margin-top: 0;">🔄 Registrar Movimiento</h3>
+                    <h3 style="margin-top: 0;" id="form-title">🔄 Registrar Movimiento</h3>
                     <form id="transfer-form">
                         <label>Concepto:</label><input type="text" id="tx-desc" class="form-input" required>
                         <label>Monto:</label><input type="number" id="amount" class="form-input" step="0.01" required>
@@ -18,7 +18,8 @@ export function renderTransactions(): string {
                         <label>Origen:</label><select id="origin" class="form-select"></select>
                         <label>Destino:</label><select id="destination" class="form-select"></select>
                         <div class="mb-3"><input type="checkbox" id="tx-cleared" checked> <label>Liquidado</label></div>
-                        <button type="submit" class="btn btn-success">Ejecutar</button>
+                        <button type="submit" id="btn-submit-tx" class="btn btn-success">Ejecutar</button>
+                        <button type="button" id="btn-cancel-edit" class="btn btn-secondary mt-2" style="display:none;">Cancelar Edición</button>
                     </form>
                 </div>
             </div>
