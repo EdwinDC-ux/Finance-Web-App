@@ -87,4 +87,35 @@ class TransactionController {
             echo json_encode(["status" => "error", "message" => $e->getMessage()]);
         }
     }
+
+    public function delete($id) {
+        $this->checkAuth();
+        try {
+            $pdo = Database::getConnection();
+            // Llamamos al Stored Procedure de Reversa
+            $stmt = $pdo->prepare("CALL sp_reversar_transaccion(:id)");
+            $stmt->execute([':id' => $id]);
+            echo json_encode(["status" => "success", "message" => "Movimiento eliminado (reversado)"]);
+        } catch (\Exception $e) { echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
+    }
+
+    public function update($id) {
+        $this->checkAuth();
+        $data = json_decode(file_get_contents('php://input'), true);
+        try {
+            $pdo = Database::getConnection();
+            // 1. Reversamos la original
+            $stmtRev = $pdo->prepare("CALL sp_reversar_transaccion(:id)");
+            $stmtRev->execute([':id' => $id]);
+            
+            // 2. Insertamos la nueva con los datos actualizados
+            $stmtNew = $pdo->prepare("CALL sp_transferir_fondos(:monto, :fecha, :origen, :destino, :categoria, :desc, :cleared, :periodo)");
+            $stmtNew->execute([
+                ':monto' => $data['monto'], ':fecha' => $data['fecha'], ':origen' => $data['origen'], 
+                ':destino' => $data['destino'], ':categoria' => $data['categoria'], ':desc' => $data['descripcion'], 
+                ':cleared' => $data['is_cleared'], ':periodo' => $data['payment_period']
+            ]);
+            echo json_encode(["status" => "success", "message" => "Movimiento actualizado"]);
+        } catch (\Exception $e) { echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
+    }
 }
