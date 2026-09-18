@@ -121,9 +121,23 @@ export function initSettings() {
 
 async function loadAccountsData() {
     const res = await fetch('/api/accounts'); const result = await res.json();
-    if (result.status === 'success')
+    if (result.status === 'success') {
         document.querySelector<HTMLDivElement>('#accounts-container')!.innerHTML = buildAccountsTable(result.data);
-    else
+
+        document.querySelectorAll('.btn-delete-account').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const id = (e.target as HTMLButtonElement).getAttribute('data-id');
+                if (confirm('¿Eliminar esta cuenta? (Solo si el saldo es $0.00)')) {
+                    const delRes = await fetch(`/api/accounts/${id}`, { method: 'DELETE' });
+                    const delResult = await delRes.json();
+                    if (delRes.ok && delResult.status === 'success') {
+                        alert('Cuenta eliminada');
+                        loadAccountsData();
+                    } else { alert(delResult.message); }
+                }
+            });
+        });
+    } else
         showToast(result.message, 'error');
 }
 
