@@ -1,6 +1,10 @@
+// Archivo: frontend/src/pages/Transactions.ts
 import { type Account, type Category } from '../types';
 import { buildHistoryTable } from '../components/Tables';
 import { showToast } from '../components/Toast';
+import { showConfirm } from '../components/Modal';
+
+let currentEditId: string | null = null;
 
 
 export function renderTransactions(): string {
@@ -35,8 +39,24 @@ export function renderTransactions(): string {
 
 export function initTransactions() {
     const form = document.querySelector<HTMLFormElement>('#transfer-form')!;
+    const btnSubmit = document.querySelector<HTMLButtonElement>('#btn-submit-tx')!;
+    const btnCancel = document.querySelector<HTMLButtonElement>('#btn-cancel-edit')!;
+    const formTitle = document.querySelector<HTMLHeadingElement>('#form-title')!;
+    
     document.querySelector<HTMLInputElement>('#tx-date')!.valueAsDate = new Date();
 
+    // CANCELAR EDICIÓN
+    btnCancel.addEventListener('click', () => {
+        currentEditId = null;
+        form.reset();
+        document.querySelector<HTMLInputElement>('#tx-date')!.valueAsDate = new Date();
+        formTitle.innerText = '🔄 Registrar Movimiento';
+        btnSubmit.innerText = 'Ejecutar';
+        btnSubmit.className = 'btn btn-success';
+        btnCancel.style.display = 'none';
+    });
+
+    // ENVIAR FORMULARIO (POST o PUT)
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const payload = {
@@ -49,8 +69,19 @@ export function initTransactions() {
             is_cleared: document.querySelector<HTMLInputElement>('#tx-cleared')!.checked ? 1 : 0,
             payment_period: document.querySelector<HTMLInputElement>('#tx-period')!.value || null
         };
-        const res = await fetch('/api/transfer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        if (res.ok) { form.reset(); document.querySelector<HTMLInputElement>('#tx-date')!.valueAsDate = new Date(); loadHistory(); }
+
+        const url = currentEditId ? `/api/transactions/${currentEditId}` : '/api/transfer';
+        const method = currentEditId ? 'PUT' : 'POST';
+
+        try {
+            const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            const result = await res.json();
+            if (res.ok && result.status === 'success') { 
+                showToast(result.message, 'success');
+                btnCancel.click(); // Resetea el formulario y el estado
+                loadHistory(); 
+            } else { showToast(result.message, 'error'); }
+        } catch (error) { showToast('Error de conexión', 'error'); }
     });
 
     loadSelects();
@@ -75,20 +106,48 @@ async function loadHistory() {
     const res = await fetch('/api/transactions'); const result = await res.json();
     if (result.status === 'success') {
         document.querySelector<HTMLDivElement>('#history-container')!.innerHTML = buildHistoryTable(result.data);
-
+        
+        // EVENTO: ELIMINAR
         document.querySelectorAll('.btn-delete-tx').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
+            btn.addEventListener('click', (e) => {
                 const id = (e.target as HTMLButtonElement).getAttribute('data-id');
-                if (confirm('¿Estás seguro de eliminar (reversar) este movimiento?')) {
+                showConfirm('Eliminar Movimiento', '¿Estás seguro de reversar este movimiento? El dinero regresará a su cuenta original.', async () => {
                     const delRes = await fetch(`/api/transactions/${id}`, { method: 'DELETE' });
                     const delResult = await delRes.json();
                     if (delRes.ok && delResult.status === 'success') {
-                        alert('Movimiento eliminado');
-                        loadHistory(); // Recargar tabla
-                    } else { alert(delResult.message); }
-                }
+                        showToast('Movimiento eliminado', 'success');
+                        loadHistory();
+                    } else { showToast(delResult.message, 'error'); }
+                });
             });
         });
-    } else
-        showToast(result.message, 'error');
+
+        // EVENTO: EDITAR (Fill & Switch)
+        document.querySelectorAll('.btn-edit-tx').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const target = e.target as HTMLButtonElement;
+                currentEditId = target.getAttribute('data-id');
+                
+                // Llenar el formulario
+                document.querySelector<HTMLInputElement>('#amount')!.value = target.getAttribute('data-amount')!;
+                document.querySelector<HTMLInputElement>('#tx-date')!.value = target.getAttribute('data-date')!;
+                document.querySelector<HTMLInputElement>('#tx-desc')!.value = target.getAttribute('data-desc')!;
+                document.querySelector<HTMLSelectElement>('#category')!.value = target.getAttribute('data-cat')!;
+                document.querySelector<HTMLSelectElement>('#origin')!.value = target.getAttribute('data-origin')!;
+                document.querySelector<HTMLSelectElement>('#destination')!.value = target.getAttribute('data-dest')!;
+                document.querySelector<HTMLInputElement>('#tx-period')!.value = target.getAttribute('data-period')!;
+                document.querySelector<HTMLInputElement>('#tx-cleared')!.checked = target.getAttribute('data-cleared') === '1';
+
+                // Cambiar la UI
+                document.querySelector<HTMLHeadingElement>('#form-title')!.innerText = '✏️ Editar Movimiento';
+                const btnSubmit = document.querySelector<HTMLButtonElement>('#btn-submit-tx')!;
+                btnSubmit.innerText = 'Actualizar';
+                btnSubmit.className = 'btn btn-warning';
+                document.querySelector<HTMLButtonElement>('#btn-cancel-edit')!.style.display = 'inline-block';
+                
+                // Scroll hacia arriba
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+    }
 }
