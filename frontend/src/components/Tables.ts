@@ -47,3 +47,38 @@ export function buildHistoryTable(transactions: Transaction[]): string {
   });
   return html + `</table></div>`;
 }
+
+export function buildGroupsTable(groups: any[]): string {
+  if (groups.length === 0) return "<p class='text-muted'>No hay grupos registrados.</p>";
+  let html = `<div class="table-responsive"><table class="data-table">
+    <tr><th>Grupo</th><th class="text-center" style="width: 100px;">Acciones</th></tr>`;
+  groups.forEach(g => {
+    html += `<tr>
+      <td>${g.nombre}</td>
+      <td class="text-center">
+        <button class="btn btn-sm btn-warning btn-edit-group" data-id="${g.id}" data-name="${g.nombre}">✏️</button>
+        <button class="btn btn-sm btn-danger btn-delete-group" data-id="${g.id}">🗑️</button>
+      </td>
+    </tr>`;
+  });
+  return html + `</table></div>`;
+}
+
+export function buildCategoriesTable(categories: any[]): string {
+  if (categories.length === 0) return "<p class='text-muted'>No hay categorías registradas.</p>";
+  let html = `<div class="table-responsive"><table class="data-table">
+    <tr><th>Categoría</th><th>Grupo</th><th>Tipo</th><th class="text-center" style="width: 100px;">Acciones</th></tr>`;
+  categories.forEach(c => {
+    const typeColor = c.type === 'Ingreso' ? 'text-success' : 'text-danger';
+    html += `<tr>
+      <td>${c.name}</td>
+      <td><small class="text-muted">${c.grupo}</small></td>
+      <td class="${typeColor} fw-bold"><small>${c.type}</small></td>
+      <td class="text-center">
+        <button class="btn btn-sm btn-warning btn-edit-category" data-id="${c.id}" data-name="${c.name}" data-group="${c.grupo_id}" data-type="${c.type.toLowerCase()}">✏️</button>
+        <button class="btn btn-sm btn-danger btn-delete-category" data-id="${c.id}">🗑️</button>
+      </td>
+    </tr>`;
+  });
+  return html + `</table></div>`;
+}
