@@ -62,7 +62,7 @@ class AccountController {
         $data = json_decode(file_get_contents('php://input'), true);
         try {
             $pdo = Database::getConnection();
-            $stmt = $pdo->prepare("UPDATE TBL_CUENTAS SET name = :name, tipo_cuenta_id = :tipo WHERE id = :id AND user_id = :uid");
+            $stmt = $pdo->prepare("UPDATE TBL_CUENTAS SET nombre = :name, tipo_cuenta_id = :tipo WHERE id = :id AND user_id = :uid");
             $stmt->execute([':name' => $data['name'], ':tipo' => $data['tipo_cuenta_id'], ':id' => $id, ':uid' => $userId]);
             echo json_encode(["status" => "success", "message" => "Cuenta actualizada"]);
         } catch (\Exception $e) { echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
