@@ -93,8 +93,14 @@ async function loadBudgetsList() {
     if (result.status === 'success') {
         const container = document.querySelector<HTMLDivElement>('#budgets-page-container')!;
         if (result.data.length === 0) { container.innerHTML = "<p class='text-muted'>No hay presupuestos asignados este mes.</p>"; return; }
+
+        const totalBudgeted = result.data.reduce((sum: any, b: BudgetStat) => sum + parseFloat(b.budget_limit), 0);
+
+        let html = `<div class="mb-3 p-2 bg-light rounded border text-center">
+                        <h5 class="m-0 text-primary">Total Asignado: $${totalBudgeted.toLocaleString('es-MX')}</h5>
+                    </div>`;
         
-        let html = '<table class="data-table"><tr><th>Categoría</th><th class="text-right">Límite</th><th class="text-right">Gastado</th></tr>';
+        html += '<table class="data-table"><tr><th>Categoría</th><th class="text-right">Límite</th><th class="text-right">Gastado</th></tr>';
         result.data.forEach((b: BudgetStat) => {
             html += `<tr>
                 <td>${b.name}</td>

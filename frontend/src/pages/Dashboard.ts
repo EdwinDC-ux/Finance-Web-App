@@ -148,7 +148,11 @@ async function loadBudgets() {
     if (result.status === 'success') {
         const container = document.querySelector<HTMLDivElement>('#budgets-container')!;
         if (result.data.length === 0) { container.innerHTML = "<p class='text-muted'>No hay presupuestos.</p>"; return; }
-        let html = '';
+        const totalBudgeted = result.data.reduce((sum: any, b: BudgetStat) => sum + parseFloat(b.budget_limit), 0);
+
+        let html = `<div class="mb-3 p-2 bg-light rounded border text-center">
+                        <h5 class="m-0 text-primary">Total Asignado: $${totalBudgeted.toLocaleString('es-MX')}</h5>
+                    </div>`;
         result.data.forEach((b: BudgetStat) => {
             const limit = parseFloat(b.budget_limit); const spent = parseFloat(b.spent);
             const percentage = Math.min((spent / limit) * 100, 100);
