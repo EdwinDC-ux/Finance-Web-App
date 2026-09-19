@@ -38,4 +38,19 @@ $router->post('/api/categories/copy-budgets', '\App\Controllers\CategoryControll
 $router->get('/api/stats/credit-cards', '\App\Controllers\StatsController@getCreditCards');
 $router->post('/api/categories/set-budget', '\App\Controllers\CategoryController@setBudget');
 
+// --- RUTAS DE EDICIÓN Y ELIMINACIÓN (CRUD) ---
+// Cuentas
+$router->put('/api/accounts/(\d+)', '\App\Controllers\AccountController@update');
+$router->delete('/api/accounts/(\d+)', '\App\Controllers\AccountController@delete');
+
+// Grupos y Categorías
+$router->put('/api/groups/(\d+)', '\App\Controllers\CategoryController@updateGroup');
+$router->delete('/api/groups/(\d+)', '\App\Controllers\CategoryController@deleteGroup');
+$router->put('/api/categories/(\d+)', '\App\Controllers\CategoryController@updateCategory');
+$router->delete('/api/categories/(\d+)', '\App\Controllers\CategoryController@deleteCategory');
+
+// Transacciones
+$router->put('/api/transactions/(\d+)', '\App\Controllers\TransactionController@update');
+$router->delete('/api/transactions/(\d+)', '\App\Controllers\TransactionController@delete');
+
 $router->run();

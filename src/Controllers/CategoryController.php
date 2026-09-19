@@ -19,7 +19,7 @@ class CategoryController {
     public function getGroups() {
         $userId = $this->checkAuth();
         $pdo = Database::getConnection();
-        $stmt = $pdo->prepare("SELECT * FROM CAT_GRUPOS_CATEGORIA WHERE user_id = :uid");
+        $stmt = $pdo->prepare("SELECT * FROM CAT_GRUPOS_CATEGORIA WHERE user_id = :uid AND is_active = 1");
         $stmt->execute([':uid' => $userId]);
         echo json_encode(["status" => "success", "data" => $stmt->fetchAll()]);
     }
@@ -48,11 +48,11 @@ class CategoryController {
     public function getAllCategories() {
         $userId = $this->checkAuth();
         $pdo = Database::getConnection();
-        $sql = "SELECT c.id, c.nombre as name, tc.nombre as type, g.nombre as grupo 
+        $sql = "SELECT c.id, c.nombre as name, tc.nombre as type, g.nombre as grupo, c.grupo_id 
                 FROM CAT_CATEGORIAS c
                 JOIN CAT_GRUPOS_CATEGORIA g ON c.grupo_id = g.id
                 JOIN CAT_TIPOS_CATEGORIA tc ON c.tipo_categoria_id = tc.id
-                WHERE g.user_id = :user_id";
+                WHERE g.user_id = :user_id AND c.is_active = 1 AND g.is_active = 1";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([':user_id' => $userId]);
         echo json_encode(["status" => "success", "data" => $stmt->fetchAll()]);
@@ -154,5 +154,60 @@ class CategoryController {
         } catch (\Exception $e) {
             echo json_encode(["status" => "error", "message" => $e->getMessage()]);
         }
+    }
+
+    public function updateGroup($id) {
+        $userId = $this->checkAuth();
+        $data = json_decode(file_get_contents('php://input'), true);
+        try {
+            $pdo = Database::getConnection();
+            $stmt = $pdo->prepare("UPDATE CAT_GRUPOS_CATEGORIA SET nombre = :nombre WHERE id = :id AND user_id = :uid");
+            $stmt->execute([':nombre' => $data['nombre'], ':id' => $id, ':uid' => $userId]);
+            echo json_encode(["status" => "success", "message" => "Grupo actualizado"]);
+        } catch (\Exception $e) { echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
+    }
+
+    public function deleteGroup($id) {
+        $userId = $this->checkAuth();
+        try {
+            $pdo = Database::getConnection();
+            // Validar que no tenga categorías activas
+            $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM CAT_CATEGORIAS WHERE grupo_id = :id AND is_active = 1");
+            $stmtCheck->execute([':id' => $id]);
+            if ($stmtCheck->fetchColumn() > 0) {
+                echo json_encode(["status" => "error", "message" => "No puedes eliminar un grupo con categorías activas"]); return;
+            }
+            $stmt = $pdo->prepare("UPDATE CAT_GRUPOS_CATEGORIA SET is_active = 0 WHERE id = :id AND user_id = :uid");
+            $stmt->execute([':id' => $id, ':uid' => $userId]);
+            echo json_encode(["status" => "success", "message" => "Grupo eliminado"]);
+        } catch (\Exception $e) { echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
+    }
+
+    public function updateCategory($id) {
+        $userId = $this->checkAuth();
+        $data = json_decode(file_get_contents('php://input'), true);
+        try {
+            $pdo = Database::getConnection();
+            $stmtTipo = $pdo->prepare("SELECT id FROM CAT_TIPOS_CATEGORIA WHERE nombre = :tipo");
+            $stmtTipo->execute([':tipo' => ucfirst(strtolower($data['type']))]);
+            $tipoId = $stmtTipo->fetchColumn();
+
+            $stmt = $pdo->prepare("UPDATE CAT_CATEGORIAS c JOIN CAT_GRUPOS_CATEGORIA g ON c.grupo_id = g.id 
+                                   SET c.nombre = :nombre, c.grupo_id = :grupo, c.tipo_categoria_id = :tipo 
+                                   WHERE c.id = :id AND g.user_id = :uid");
+            $stmt->execute([':nombre' => $data['name'], ':grupo' => $data['grupo_id'], ':tipo' => $tipoId, ':id' => $id, ':uid' => $userId]);
+            echo json_encode(["status" => "success", "message" => "Categoría actualizada"]);
+        } catch (\Exception $e) { echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
+    }
+
+    public function deleteCategory($id) {
+        $userId = $this->checkAuth();
+        try {
+            $pdo = Database::getConnection();
+            $stmt = $pdo->prepare("UPDATE CAT_CATEGORIAS c JOIN CAT_GRUPOS_CATEGORIA g ON c.grupo_id = g.id 
+                                   SET c.is_active = 0 WHERE c.id = :id AND g.user_id = :uid");
+            $stmt->execute([':id' => $id, ':uid' => $userId]);
+            echo json_encode(["status" => "success", "message" => "Categoría eliminada"]);
+        } catch (\Exception $e) { echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
     }
 }

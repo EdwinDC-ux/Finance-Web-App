@@ -77,7 +77,8 @@ class TransactionController {
             $pdo = Database::getConnection();
             $sql = "SELECT transaccion_id as id, monto as amount, fecha as created_at, 
                            categoria as category, cuenta_origen as origin_name, cuenta_destino as dest_name,
-                           descripcion as description, conciliado as is_cleared, periodo_pago as payment_period
+                           descripcion as description, conciliado as is_cleared, periodo_pago as payment_period,
+                           origin_id, destination_id, category_id 
                     FROM VW_DETALLE_TRANSACCIONES 
                     WHERE user_id = :user_id ORDER BY fecha DESC, transaccion_id DESC LIMIT 15";
             $stmt = $pdo->prepare($sql);
@@ -86,5 +87,36 @@ class TransactionController {
         } catch (\Exception $e) {
             echo json_encode(["status" => "error", "message" => $e->getMessage()]);
         }
+    }
+
+    public function delete($id) {
+        $this->checkAuth();
+        try {
+            $pdo = Database::getConnection();
+            // Llamamos al Stored Procedure de Reversa
+            $stmt = $pdo->prepare("CALL sp_reversar_transaccion(:id)");
+            $stmt->execute([':id' => $id]);
+            echo json_encode(["status" => "success", "message" => "Movimiento eliminado (reversado)"]);
+        } catch (\Exception $e) { echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
+    }
+
+    public function update($id) {
+        $this->checkAuth();
+        $data = json_decode(file_get_contents('php://input'), true);
+        try {
+            $pdo = Database::getConnection();
+            // 1. Reversamos la original
+            $stmtRev = $pdo->prepare("CALL sp_reversar_transaccion(:id)");
+            $stmtRev->execute([':id' => $id]);
+            
+            // 2. Insertamos la nueva con los datos actualizados
+            $stmtNew = $pdo->prepare("CALL sp_transferir_fondos(:monto, :fecha, :origen, :destino, :categoria, :desc, :cleared, :periodo)");
+            $stmtNew->execute([
+                ':monto' => $data['monto'], ':fecha' => $data['fecha'], ':origen' => $data['origen'], 
+                ':destino' => $data['destino'], ':categoria' => $data['categoria'], ':desc' => $data['descripcion'], 
+                ':cleared' => $data['is_cleared'], ':periodo' => $data['payment_period']
+            ]);
+            echo json_encode(["status" => "success", "message" => "Movimiento actualizado"]);
+        } catch (\Exception $e) { echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
     }
 }
