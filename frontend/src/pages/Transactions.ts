@@ -122,6 +122,19 @@ async function loadHistory() {
             });
         });
 
+        // EVENTO: TOGGLE LIQUIDADO (Atajo)
+        document.querySelectorAll('.btn-toggle-clear').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const id = (e.currentTarget as HTMLButtonElement).getAttribute('data-id');
+                try {
+                    await fetch(`/api/transactions/${id}/toggle-clear`, { method: 'PATCH' });
+                    loadHistory(); // Recargamos la tabla para ver el cambio de icono
+                } catch (error) {
+                    showToast('Error al actualizar estado', 'error');
+                }
+            });
+        });
+
         // EVENTO: EDITAR (Fill & Switch)
         document.querySelectorAll('.btn-edit-tx').forEach(btn => {
             btn.addEventListener('click', (e) => {
