@@ -24,7 +24,7 @@ class AccountController {
     public function getAllAccounts() {
         $userId = $this->checkAuth();
         $pdo = Database::getConnection();
-        $stmt = $pdo->prepare("SELECT c.*, tc.nombre as tipo_nombre FROM TBL_CUENTAS c JOIN CAT_TIPOS_CUENTA tc ON c.tipo_cuenta_id = tc.id WHERE c.user_id = :user_id");
+        $stmt = $pdo->prepare("SELECT c.*, tc.nombre as tipo_nombre FROM TBL_CUENTAS c JOIN CAT_TIPOS_CUENTA tc ON c.tipo_cuenta_id = tc.id WHERE c.user_id = :user_id AND c.is_active = 1");
         $stmt->execute([':user_id' => $userId]);
         echo json_encode(["status" => "success", "data" => $stmt->fetchAll()]);
     }
