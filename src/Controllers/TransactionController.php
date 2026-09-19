@@ -119,4 +119,17 @@ class TransactionController {
             echo json_encode(["status" => "success", "message" => "Movimiento actualizado"]);
         } catch (\Exception $e) { echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
     }
+
+    public function toggleClear($id) {
+        $this->checkAuth();
+        try {
+            $pdo = \App\Core\Database::getConnection();
+            // Truco: 1 - 0 = 1 | 1 - 1 = 0 (Alterna el estado)
+            $stmt = $pdo->prepare("UPDATE TBL_TRANSACCIONES SET is_cleared = 1 - is_cleared WHERE id = :id");
+            $stmt->execute([':id' => $id]);
+            echo json_encode(["status" => "success"]);
+        } catch (\Exception $e) { 
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]); 
+        }
+    }
 }
