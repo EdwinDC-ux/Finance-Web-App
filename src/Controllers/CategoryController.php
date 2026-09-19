@@ -19,7 +19,7 @@ class CategoryController {
     public function getGroups() {
         $userId = $this->checkAuth();
         $pdo = Database::getConnection();
-        $stmt = $pdo->prepare("SELECT * FROM CAT_GRUPOS_CATEGORIA WHERE user_id = :uid");
+        $stmt = $pdo->prepare("SELECT * FROM CAT_GRUPOS_CATEGORIA WHERE user_id = :uid AND is_active = 1");
         $stmt->execute([':uid' => $userId]);
         echo json_encode(["status" => "success", "data" => $stmt->fetchAll()]);
     }
@@ -52,7 +52,7 @@ class CategoryController {
                 FROM CAT_CATEGORIAS c
                 JOIN CAT_GRUPOS_CATEGORIA g ON c.grupo_id = g.id
                 JOIN CAT_TIPOS_CATEGORIA tc ON c.tipo_categoria_id = tc.id
-                WHERE g.user_id = :user_id";
+                WHERE g.user_id = :user_id AND c.is_active = 1 AND g.is_active = 1";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([':user_id' => $userId]);
         echo json_encode(["status" => "success", "data" => $stmt->fetchAll()]);
