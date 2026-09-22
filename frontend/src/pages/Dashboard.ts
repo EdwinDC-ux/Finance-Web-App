@@ -136,7 +136,21 @@ async function loadStats() {
         const labels = result.data.map((i: any) => i.category); const totals = result.data.map((i: any) => parseFloat(i.total));
         if (expenseChart) expenseChart.destroy();
         expenseChart = new Chart(document.querySelector<HTMLCanvasElement>('#expense-chart')!, {
-            type: 'doughnut', data: { labels, datasets: [{ data: totals, backgroundColor: ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22'] }] }
+            type: 'doughnut', 
+            data: { 
+                labels, 
+                datasets: [{ 
+                    data: totals, 
+                    backgroundColor: [
+                        '#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22', 
+                        '#1abc9c', '#34495e', '#e84393', '#00cec9', '#fdcb6e', '#00b894',
+                        '#6c5ce7', '#d63031', '#fd79a8', '#ffeaa7', '#81ecec', '#55efc4',
+                        '#a29bfe', '#b2bec3'
+                    ],
+                    borderWidth: 1 
+                }] 
+            },
+            options: { responsive: true, plugins: { legend: { position: 'top' } } }
         });
     } else {
         showToast(result.message, 'error');
