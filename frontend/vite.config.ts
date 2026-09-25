@@ -1,15 +1,22 @@
-// Archivo: frontend/vite.config.ts
 import { defineConfig } from 'vite';
 
 export default defineConfig({
   server: {
-    host: true, // Necesario para Docker
+    host: true,
+    allowedHosts: ['.trycloudflare.com'],  // ← AGREGA ESTA LÍNEA
     proxy: {
-      // Todo lo que empiece con /api se va al contenedor de PHP
       '/api': {
-        target: 'http://web:80', // 'web' es el nombre de tu servicio en docker-compose
+        target: 'http://web:80',
         changeOrigin: true,
       }
+    },
+    watch: {
+      usePolling: true
     }
+  },
+  // NUEVA SECCIÓN DE BUILD
+  build: {
+    outDir: '../public', // Escupe los archivos en la carpeta de Apache
+    emptyOutDir: false,  // ¡VITAL! Para que no borre tu index.php ni tu .htaccess
   }
 });
