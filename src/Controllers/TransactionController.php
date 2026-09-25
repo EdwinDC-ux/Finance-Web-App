@@ -73,17 +73,33 @@ class TransactionController {
 
     public function getHistory() {
         $userId = $this->checkAuth();
+        
+        // Obtenemos el mes actual en formato YYYY-MM (Ej. '2026-09')
+        $mesActual = date('Y-m'); 
+
         try {
-            $pdo = Database::getConnection();
+            $pdo = \App\Core\Database::getConnection();
+            
             $sql = "SELECT transaccion_id as id, monto as amount, fecha as created_at, 
                            categoria as category, cuenta_origen as origin_name, cuenta_destino as dest_name,
                            descripcion as description, conciliado as is_cleared, periodo_pago as payment_period,
                            origin_id, destination_id, category_id 
                     FROM VW_DETALLE_TRANSACCIONES 
-                    WHERE user_id = :user_id ORDER BY fecha DESC, transaccion_id DESC LIMIT 15";
+                    WHERE user_id = :user_id 
+                      AND (
+                          DATE_FORMAT(fecha, '%Y-%m') = :mes_actual 
+                          OR periodo_pago = :mes_actual
+                      )
+                    ORDER BY fecha DESC, transaccion_id DESC";
+                    
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([':user_id' => $userId]);
+            $stmt->execute([
+                ':user_id' => $userId,
+                ':mes_actual' => $mesActual
+            ]);
+            
             echo json_encode(["status" => "success", "data" => $stmt->fetchAll()]);
+
         } catch (\Exception $e) {
             echo json_encode(["status" => "error", "message" => $e->getMessage()]);
         }
@@ -118,5 +134,18 @@ class TransactionController {
             ]);
             echo json_encode(["status" => "success", "message" => "Movimiento actualizado"]);
         } catch (\Exception $e) { echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
+    }
+
+    public function toggleClear($id) {
+        $this->checkAuth();
+        try {
+            $pdo = \App\Core\Database::getConnection();
+            // Truco: 1 - 0 = 1 | 1 - 1 = 0 (Alterna el estado)
+            $stmt = $pdo->prepare("UPDATE TBL_TRANSACCIONES SET is_cleared = 1 - is_cleared WHERE id = :id");
+            $stmt->execute([':id' => $id]);
+            echo json_encode(["status" => "success"]);
+        } catch (\Exception $e) { 
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]); 
+        }
     }
 }

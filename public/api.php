@@ -52,5 +52,6 @@ $router->delete('/api/categories/(\d+)', '\App\Controllers\CategoryController@de
 // Transacciones
 $router->put('/api/transactions/(\d+)', '\App\Controllers\TransactionController@update');
 $router->delete('/api/transactions/(\d+)', '\App\Controllers\TransactionController@delete');
+$router->patch('/api/transactions/(\d+)/toggle-clear', '\App\Controllers\TransactionController@toggleClear');
 
 $router->run();

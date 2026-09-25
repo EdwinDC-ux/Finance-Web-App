@@ -177,26 +177,30 @@ BEGIN
         RESIGNAL;
     END;
 
-    -- 1. Leemos los datos originales de la transacción
+    -- 1. Leemos los datos originales
     SELECT amount, origin_id, destination_id, is_active 
     INTO v_monto, v_origen, v_destino, v_is_active
     FROM TBL_TRANSACCIONES WHERE id = p_transaccion_id;
 
-    -- 2. Solo procedemos si la transacción existe y está activa
+    -- 2. Solo procedemos si la transacción está activa
     IF v_is_active = 1 THEN
         START TRANSACTION;
 
-        -- 3. Reversamos el Origen (Le sumamos lo que le habíamos restado)
+        -- 3. Reversamos el Origen y aplicamos el PROTOCOLO LÁZARO (is_active = 1)
         IF v_origen IS NOT NULL THEN
-            UPDATE TBL_CUENTAS SET balance = balance + v_monto WHERE id = v_origen;
+            UPDATE TBL_CUENTAS 
+            SET balance = balance + v_monto, is_active = 1 
+            WHERE id = v_origen;
         END IF;
 
-        -- 4. Reversamos el Destino (Le restamos lo que le habíamos sumado)
+        -- 4. Reversamos el Destino y aplicamos el PROTOCOLO LÁZARO
         IF v_destino IS NOT NULL THEN
-            UPDATE TBL_CUENTAS SET balance = balance - v_monto WHERE id = v_destino;
+            UPDATE TBL_CUENTAS 
+            SET balance = balance - v_monto, is_active = 1 
+            WHERE id = v_destino;
         END IF;
 
-        -- 5. Aplicamos el Soft Delete
+        -- 5. Apagamos la transacción
         UPDATE TBL_TRANSACCIONES SET is_active = 0 WHERE id = p_transaccion_id;
 
         COMMIT;

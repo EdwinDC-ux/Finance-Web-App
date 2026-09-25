@@ -24,7 +24,9 @@ export function buildHistoryTable(transactions: Transaction[]): string {
   transactions.forEach(tx => {
     const origin = tx.origin_name || '<span class="text-success">Externo</span>';
     const dest = tx.dest_name || '<span class="text-danger">Externo</span>';
-    const check = tx.is_cleared ? '✅' : '⏳';
+    const check = tx.is_cleared 
+        ? `<button class="btn-toggle-clear" data-id="${tx.id}" style="background:none; border:none; cursor:pointer;" title="Marcar como pendiente">✅</button>` 
+        : `<button class="btn-toggle-clear" data-id="${tx.id}" style="background:none; border:none; cursor:pointer;" title="Marcar como liquidado">⏳</button>`;
     const period = tx.payment_period || '-';
     
     // Inyectamos todos los IDs para poder reconstruir el formulario

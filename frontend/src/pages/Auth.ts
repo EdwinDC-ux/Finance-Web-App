@@ -48,7 +48,7 @@ export function initLogin() {
             }
         } catch (error) { 
             showView('login', false); 
-            alert('Error de conexión'); 
+            showToast('Error de conexión', 'error'); 
         }
     });
 }
@@ -93,7 +93,7 @@ export function initRegister() {
             });
             const result = await res.json();
             if (result.status === 'success') { 
-                alert('¡Cuenta creada!'); 
+                showToast('¡Cuenta creada!', 'success'); 
                 showView('login'); 
             } else { 
                 showView('register', false); 
@@ -101,7 +101,7 @@ export function initRegister() {
             }
         } catch (error) { 
             showView('register', false); 
-            alert('Error de conexión'); 
+            showToast('Error de conexión', 'error'); 
         }
     });
 }
