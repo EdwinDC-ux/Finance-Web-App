@@ -79,7 +79,7 @@ export function buildCategoriesTable(categories: any[]): string {
       <td><small class="text-muted">${c.grupo}</small></td>
       <td class="${typeColor} fw-bold"><small>${c.type}</small></td>
       <td class="text-center">
-        <button class="btn btn-sm btn-warning btn-edit-category" data-id="${c.id}" data-name="${c.name}" data-group="${c.grupo_id}" data-type="${c.type.toLowerCase()}">✏️</button>
+        <button class="btn btn-sm btn-warning btn-edit-category" data-id="${c.id}" data-name="${c.name}" data-group="${c.grupo_id}" data-type="${c.id_type}">✏️</button>
         <button class="btn btn-sm btn-danger btn-delete-category" data-id="${c.id}">🗑️</button>
       </td>
     </tr>`;

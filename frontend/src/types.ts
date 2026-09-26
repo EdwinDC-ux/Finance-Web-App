@@ -31,6 +31,7 @@ export interface Category {
     id: number;
     name: string;
     type: string;
+    id_type: number
 }
 
 export interface UserProfile {

@@ -100,8 +100,8 @@ async function loadSelects() {
     let catOpts = '<option value="">-- Categoría --</option>';
     dataCat.data.forEach((c: Category) => {
         let icon = '⚖️'; 
-        if (c.type === 'Ingreso') icon = '📈';
-        if (c.type === 'Gasto') icon = '📉';
+        if (c.id_type === 1) icon = '📈'; // 1 = Ingreso
+        if (c.id_type === 2) icon = '📉'; // 2 = Gasto
         
         catOpts += `<option value="${c.id}">${icon} ${c.name}</option>`;
     });
