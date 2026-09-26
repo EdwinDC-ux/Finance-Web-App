@@ -48,6 +48,7 @@ $router->put('/api/groups/(\d+)', '\App\Controllers\CategoryController@updateGro
 $router->delete('/api/groups/(\d+)', '\App\Controllers\CategoryController@deleteGroup');
 $router->put('/api/categories/(\d+)', '\App\Controllers\CategoryController@updateCategory');
 $router->delete('/api/categories/(\d+)', '\App\Controllers\CategoryController@deleteCategory');
+$router->get('/api/category-types', '\App\Controllers\CategoryController@getTypes');
 
 // Transacciones
 $router->put('/api/transactions/(\d+)', '\App\Controllers\TransactionController@update');
