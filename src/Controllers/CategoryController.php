@@ -210,4 +210,15 @@ class CategoryController {
             echo json_encode(["status" => "success", "message" => "Categoría eliminada"]);
         } catch (\Exception $e) { echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
     }
+
+    public function getTypes() {
+        $this->checkAuth();
+        try {
+            $pdo = \App\Core\Database::getConnection();
+            $stmt = $pdo->query("SELECT * FROM CAT_TIPOS_CATEGORIA");
+            echo json_encode(["status" => "success", "data" => $stmt->fetchAll()]);
+        } catch (\Exception $e) {
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+        }
+    }
 }
