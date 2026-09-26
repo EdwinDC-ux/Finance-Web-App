@@ -62,12 +62,11 @@ class CategoryController {
         $userId = $this->checkAuth();
         $data = json_decode(file_get_contents('php://input'), true);
 
-        $name = trim($data['name'] ?? '');
-        $typeString = ucfirst(strtolower($data['type'] ?? ''));
+        $tipoId = $data['tipo_categoria_id'] ?? null;
         $grupoId = $data['grupo_id'] ?? null;
         $budgetLimit = $data['budget_limit'] ?? 0;
 
-        if (empty($name) || empty($typeString) || empty($grupoId)) {
+        if (empty($name) || empty($tipoId) || empty($grupoId)) {
             echo json_encode(["status" => "error", "message" => "Nombre, Tipo y Grupo son obligatorios"]);
             return;
         }
@@ -75,10 +74,6 @@ class CategoryController {
         try {
             $pdo = Database::getConnection();
             $pdo->beginTransaction();
-
-            $stmtTipo = $pdo->prepare("SELECT id FROM CAT_TIPOS_CATEGORIA WHERE nombre = :tipo");
-            $stmtTipo->execute([':tipo' => $typeString]);
-            $tipoId = $stmtTipo->fetchColumn();
 
             $stmtCat = $pdo->prepare("INSERT INTO CAT_CATEGORIAS (grupo_id, tipo_categoria_id, nombre) VALUES (:grupo, :tipo, :nombre)");
             $stmtCat->execute([':grupo' => $grupoId, ':tipo' => $tipoId, ':nombre' => $name]);
@@ -186,12 +181,11 @@ class CategoryController {
     public function updateCategory($id) {
         $userId = $this->checkAuth();
         $data = json_decode(file_get_contents('php://input'), true);
-        try {
-            $pdo = Database::getConnection();
-            $stmtTipo = $pdo->prepare("SELECT id FROM CAT_TIPOS_CATEGORIA WHERE nombre = :tipo");
-            $stmtTipo->execute([':tipo' => ucfirst(strtolower($data['type']))]);
-            $tipoId = $stmtTipo->fetchColumn();
 
+        $tipoId = $data['tipo_categoria_id'] ?? null;
+
+        try {
+            $pdo = \App\Core\Database::getConnection();
             $stmt = $pdo->prepare("UPDATE CAT_CATEGORIAS c JOIN CAT_GRUPOS_CATEGORIA g ON c.grupo_id = g.id 
                                    SET c.nombre = :nombre, c.grupo_id = :grupo, c.tipo_categoria_id = :tipo 
                                    WHERE c.id = :id AND g.user_id = :uid");
