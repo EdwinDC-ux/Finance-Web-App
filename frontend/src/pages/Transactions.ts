@@ -98,7 +98,13 @@ async function loadSelects() {
     document.querySelector<HTMLSelectElement>('#destination')!.innerHTML = accOpts;
 
     let catOpts = '<option value="">-- Categoría --</option>';
-    dataCat.data.forEach((c: Category) => catOpts += `<option value="${c.id}">${c.name}</option>`);
+    dataCat.data.forEach((c: Category) => {
+        let icon = '⚖️'; 
+        if (c.type === 'Ingreso') icon = '📈';
+        if (c.type === 'Gasto') icon = '📉';
+        
+        catOpts += `<option value="${c.id}">${icon} ${c.name}</option>`;
+    });
     document.querySelector<HTMLSelectElement>('#category')!.innerHTML = catOpts;
 }
 
