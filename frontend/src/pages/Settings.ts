@@ -72,7 +72,7 @@ export function initSettings() {
 
     // Lógica visual para Límite de Crédito
     typeAcc.addEventListener('change', () => {
-        if (typeAcc.options[typeAcc.selectedIndex].text.includes('Crédito')) {
+        if (typeAcc.value === '2') {
             limitAcc.style.display = 'block'; limitAcc.required = true;
         } else {
             limitAcc.style.display = 'none'; limitAcc.required = false; limitAcc.value = '';
