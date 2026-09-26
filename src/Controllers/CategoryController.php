@@ -48,7 +48,7 @@ class CategoryController {
     public function getAllCategories() {
         $userId = $this->checkAuth();
         $pdo = Database::getConnection();
-        $sql = "SELECT c.id, c.nombre as name, tc.nombre as type, g.nombre as grupo, c.grupo_id 
+        $sql = "SELECT c.id, c.nombre as name, tc.nombre as type, tc.id as id_type, g.nombre as grupo, c.grupo_id 
                 FROM CAT_CATEGORIAS c
                 JOIN CAT_GRUPOS_CATEGORIA g ON c.grupo_id = g.id
                 JOIN CAT_TIPOS_CATEGORIA tc ON c.tipo_categoria_id = tc.id
@@ -62,6 +62,7 @@ class CategoryController {
         $userId = $this->checkAuth();
         $data = json_decode(file_get_contents('php://input'), true);
 
+        $name = $data['name'] ?? null;
         $tipoId = $data['tipo_categoria_id'] ?? null;
         $grupoId = $data['grupo_id'] ?? null;
         $budgetLimit = $data['budget_limit'] ?? 0;
