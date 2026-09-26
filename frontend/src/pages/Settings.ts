@@ -47,6 +47,7 @@ export function renderSettings(): string {
                         <select id="new-category-type" class="form-select m-0 w-auto" required>
                             <option value="ingreso">Ingreso</option>
                             <option value="gasto">Gasto</option>
+                            <option value="Variación Patrimonial">Variación Patrimonial</option>
                         </select>
                         <input type="number" id="new-category-budget" class="form-input m-0 w-auto" placeholder="Límite Inicial $" step="0.01">
                         <button type="submit" id="btn-submit-category" class="btn btn-primary w-auto" style="background: #8e44ad;">Añadir</button>
