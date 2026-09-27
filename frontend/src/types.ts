@@ -51,3 +51,13 @@ export interface CreditCardStat {
     balance: string;
     credit_limit: string;
 }
+
+export interface ProductStat {
+    id: number;
+    nombre: string;
+    total_ciclos: number;
+    ultima_fecha: string | null;
+    promedio_dias: number;
+    anual_necesario: number;
+    status: string;
+}
