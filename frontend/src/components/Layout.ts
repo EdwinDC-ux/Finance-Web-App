@@ -30,6 +30,9 @@ export function renderLayout(): string {
                         <a href="#" id="nav-transactions" class="nav-link text-white" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu">📜 Movimientos</a>
                     </li>
                     <li class="nav-item mb-2">
+                        <a href="#" id="nav-inventory" class="nav-link text-white" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu">📦 Inventario</a>
+                    </li>
+                    <li class="nav-item mb-2">
                         <a href="#" id="nav-settings" class="nav-link text-white" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu">⚙️ Configuración</a>
                     </li>
                 </ul>
