@@ -69,7 +69,7 @@ async function loadInventoryStats() {
                 <tr><th>Producto</th><th>Estado</th><th>Última Apertura</th><th class="text-center">Promedio (Días)</th><th class="text-center">Compra Anual</th><th class="text-center">Acción</th></tr>`;
             
             result.data.forEach((p: ProductStat) => {
-                const date = p.ultima_fecha ? new Date(p.ultima_fecha).toLocaleDateString('es-MX') : '-';
+                const date = p.ultima_fecha ? new Date(p.ultima_fecha + 'T12:00:00').toLocaleDateString('es-MX') : '-';
                 const anual = p.anual_necesario > 0 ? `<span class="text-success fw-bold">${p.anual_necesario} uds.</span>` : '-';
                 
                 let badgeClass = 'bg-secondary';
