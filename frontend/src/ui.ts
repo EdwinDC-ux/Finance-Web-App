@@ -54,9 +54,6 @@ function initNavigation() {
     document.querySelector('#nav-budgets')?.addEventListener('click', (e) => { e.preventDefault(); showView('budgets'); });
     document.querySelector('#nav-transactions')?.addEventListener('click', (e) => { e.preventDefault(); showView('transactions'); });
     document.querySelector('#nav-settings')?.addEventListener('click', (e) => { e.preventDefault(); showView('settings'); });
-    document.querySelector('#nav-logout')?.addEventListener('click', async (e) => {
-        e.preventDefault();
-        await fetch('/api/logout', { method: 'POST' });
-        validateSession(); 
-    });
+    document.querySelector('#nav-logout')?.addEventListener('click', async (e) => { e.preventDefault(); await fetch('/api/logout', { method: 'POST' }); validateSession(); });
+    document.querySelector('#nav-inventory')?.addEventListener('click', (e) => { e.preventDefault(); showView('inventory'); });
 }
