@@ -54,6 +54,7 @@ class StatsController {
                 WHERE user_id = :uid AND destination_id IS NULL 
                     AND tipo_categoria_id = 2 -- (2 = Gasto)
                     AND mes_anio = :mes";
+            $stmtEx = $pdo->prepare($sqlExpense);
             $stmtEx->execute([':uid' => $userId, ':mes' => $mesActual]);
             $expense = $stmtEx->fetchColumn();
 
