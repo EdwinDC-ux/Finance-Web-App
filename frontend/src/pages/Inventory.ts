@@ -1,6 +1,7 @@
 // Archivo: frontend/src/pages/Inventory.ts
 import { type ProductStat } from '../types';
 import { showToast } from '../components/Toast';
+import { showDatePrompt } from '../components/Modal';
 
 export function renderInventory(): string {
     return `
@@ -91,25 +92,29 @@ async function loadInventoryStats() {
 
             // Evento para registrar que abriste un producto
             document.querySelectorAll('.btn-log-cycle').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
+                btn.addEventListener('click', (e) => {
                     const id = (e.target as HTMLButtonElement).getAttribute('data-id');
-                    // Sugerimos la fecha de hoy por defecto (YYYY-MM-DD)
                     const today = new Date().toISOString().split('T')[0];
-                    const fecha = prompt("Fecha de apertura (YYYY-MM-DD):", today);
                     
-                    if (fecha) {
-                        const res = await fetch('/api/inventory/cycles', {
-                            method: 'POST', headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ producto_id: parseInt(id!), fecha: fecha })
-                        });
-                        const result = await res.json();
-                        if (result.status === 'success') {
-                            showToast('Ciclo registrado', 'success');
-                            loadInventoryStats();
-                        } else {
-                            showToast(result.message, 'error');
+                    // LA MAGIA: Usamos nuestro nuevo Modal de Bootstrap
+                    showDatePrompt("Registrar Nuevo Ciclo", today, async (fecha) => {
+                        try {
+                            const res = await fetch('/api/inventory/cycles', {
+                                method: 'POST', 
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ producto_id: parseInt(id!), fecha: fecha })
+                            });
+                            const result = await res.json();
+                            if (result.status === 'success') {
+                                showToast('Ciclo registrado', 'success');
+                                loadInventoryStats();
+                            } else {
+                                showToast(result.message, 'error');
+                            }
+                        } catch (error) {
+                            showToast('Error de conexión', 'error');
                         }
-                    }
+                    });
                 });
             });
         }
