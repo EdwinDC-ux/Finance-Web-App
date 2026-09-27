@@ -7,6 +7,7 @@ import { renderSettings, initSettings } from './pages/Settings';
 import { renderBudgets, initBudgets } from './pages/Budgets';
 import { render404, init404 } from './pages/Error404';
 import { validateSession } from './auth';
+import { renderInventory, initInventory } from './pages/Inventory';
 
 let layoutRendered = false;
 
@@ -39,6 +40,7 @@ export function showView(view: string, pushState: boolean = true) {
         case 'budgets': content.innerHTML = renderBudgets(); initBudgets(); break;
         case 'transactions': content.innerHTML = renderTransactions(); initTransactions(); break;
         case 'settings': content.innerHTML = renderSettings(); initSettings(); break;
+        case 'inventory': content.innerHTML = renderInventory(); initInventory(); break;
         case '404':
         default:
             content.innerHTML = render404();
