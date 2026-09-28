@@ -46,6 +46,14 @@ CREATE TABLE CAT_CATEGORIAS (
     FOREIGN KEY (tipo_categoria_id) REFERENCES CAT_TIPOS_CATEGORIA(id)
 );
 
+CREATE TABLE CAT_PRODUCTOS (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    nombre VARCHAR(100) NOT NULL, -- Ej. 'Shampoo Head & Shoulders', 'Desodorante'
+    is_active BOOLEAN DEFAULT 1,
+    FOREIGN KEY (user_id) REFERENCES TBL_USUARIOS(id)
+);
+
 -- ==========================================
 -- 3.5 TABLA DE PRESUPUESTOS MENSUALES (El Modelo YNAB)
 -- ==========================================
@@ -97,6 +105,13 @@ CREATE TABLE TBL_HISTORICO_PATRIMONIO (
     net_worth DECIMAL(15,2) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES TBL_USUARIOS(id),
     UNIQUE KEY unique_user_month (user_id, snapshot_date)
+);
+
+CREATE TABLE TBL_CICLOS_PRODUCTO (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    producto_id INT NOT NULL,
+    fecha_inicio DATE NOT NULL,
+    FOREIGN KEY (producto_id) REFERENCES CAT_PRODUCTOS(id)
 );
 
 

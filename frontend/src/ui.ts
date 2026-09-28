@@ -7,6 +7,7 @@ import { renderSettings, initSettings } from './pages/Settings';
 import { renderBudgets, initBudgets } from './pages/Budgets';
 import { render404, init404 } from './pages/Error404';
 import { validateSession } from './auth';
+import { renderInventory, initInventory } from './pages/Inventory';
 
 let layoutRendered = false;
 
@@ -39,6 +40,7 @@ export function showView(view: string, pushState: boolean = true) {
         case 'budgets': content.innerHTML = renderBudgets(); initBudgets(); break;
         case 'transactions': content.innerHTML = renderTransactions(); initTransactions(); break;
         case 'settings': content.innerHTML = renderSettings(); initSettings(); break;
+        case 'inventory': content.innerHTML = renderInventory(); initInventory(); break;
         case '404':
         default:
             content.innerHTML = render404();
@@ -52,9 +54,6 @@ function initNavigation() {
     document.querySelector('#nav-budgets')?.addEventListener('click', (e) => { e.preventDefault(); showView('budgets'); });
     document.querySelector('#nav-transactions')?.addEventListener('click', (e) => { e.preventDefault(); showView('transactions'); });
     document.querySelector('#nav-settings')?.addEventListener('click', (e) => { e.preventDefault(); showView('settings'); });
-    document.querySelector('#nav-logout')?.addEventListener('click', async (e) => {
-        e.preventDefault();
-        await fetch('/api/logout', { method: 'POST' });
-        validateSession(); 
-    });
+    document.querySelector('#nav-logout')?.addEventListener('click', async (e) => { e.preventDefault(); await fetch('/api/logout', { method: 'POST' }); validateSession(); });
+    document.querySelector('#nav-inventory')?.addEventListener('click', (e) => { e.preventDefault(); showView('inventory'); });
 }

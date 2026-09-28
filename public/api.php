@@ -38,6 +38,11 @@ $router->post('/api/categories/copy-budgets', '\App\Controllers\CategoryControll
 $router->get('/api/stats/credit-cards', '\App\Controllers\StatsController@getCreditCards');
 $router->post('/api/categories/set-budget', '\App\Controllers\CategoryController@setBudget');
 
+// Inventory tracker
+$router->post('/api/inventory/products', '\App\Controllers\ProductController@createProduct');
+$router->post('/api/inventory/cycles', '\App\Controllers\ProductController@logCycle');
+$router->get('/api/inventory/stats', '\App\Controllers\ProductController@getInventoryStats');
+
 // --- RUTAS DE EDICIÓN Y ELIMINACIÓN (CRUD) ---
 // Cuentas
 $router->put('/api/accounts/(\d+)', '\App\Controllers\AccountController@update');
