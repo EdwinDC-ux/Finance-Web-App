@@ -1,0 +1,50 @@
+# ===================================================
+# FASE 1: Construcción del Frontend (Temporal en Node)
+# ===================================================
+FROM node:20-alpine AS constructor_frontend
+WORKDIR /taller_vite
+
+# Instalación de librerías del cliente
+COPY frontend/package*.json ./
+RUN npm install
+
+# Compilación de TypeScript y empaquetado de Vite
+COPY frontend/ ./
+RUN npm run build
+
+# ===================================================
+# FASE 2: Servidor Productivo Final (PHP + Apache)
+# ===================================================
+FROM php:8.2-apache
+
+# Herramientas del sistema y extensiones de base de datos
+RUN apt-get update && apt-get install -y git unzip
+RUN docker-php-ext-install pdo pdo_mysql mysqli
+RUN a2enmod rewrite
+
+# Herramienta oficial de Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Configuración del directorio raíz público para Apache
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+WORKDIR /var/www/html
+
+# Instalación limpia de dependencias de PHP
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-scripts
+
+# Copia del código fuente del Backend
+COPY src/ ./src/
+
+# Copia de archivos estáticos del Front Controller y configuración
+COPY public/.htaccess ./public/.htaccess
+COPY public/api.php ./public/api.php
+
+# EXTRACCIÓN DE LA FASE 1: Se copian los compilados y Node desaparece
+COPY --from=constructor_frontend /public/ ./public/
+
+# Asignación de permisos al usuario web de Apache
+RUN chown -R www-data:www-data /var/www/html
