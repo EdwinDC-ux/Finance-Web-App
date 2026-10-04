@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
 
+date_default_timezone_set('America/Mexico_City');
+
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
@@ -38,6 +40,11 @@ $router->post('/api/categories/copy-budgets', '\App\Controllers\CategoryControll
 $router->get('/api/stats/credit-cards', '\App\Controllers\StatsController@getCreditCards');
 $router->post('/api/categories/set-budget', '\App\Controllers\CategoryController@setBudget');
 
+// Inventory tracker
+$router->post('/api/inventory/products', '\App\Controllers\ProductController@createProduct');
+$router->post('/api/inventory/cycles', '\App\Controllers\ProductController@logCycle');
+$router->get('/api/inventory/stats', '\App\Controllers\ProductController@getInventoryStats');
+
 // --- RUTAS DE EDICIÓN Y ELIMINACIÓN (CRUD) ---
 // Cuentas
 $router->put('/api/accounts/(\d+)', '\App\Controllers\AccountController@update');
@@ -48,6 +55,7 @@ $router->put('/api/groups/(\d+)', '\App\Controllers\CategoryController@updateGro
 $router->delete('/api/groups/(\d+)', '\App\Controllers\CategoryController@deleteGroup');
 $router->put('/api/categories/(\d+)', '\App\Controllers\CategoryController@updateCategory');
 $router->delete('/api/categories/(\d+)', '\App\Controllers\CategoryController@deleteCategory');
+$router->get('/api/category-types', '\App\Controllers\CategoryController@getTypes');
 
 // Transacciones
 $router->put('/api/transactions/(\d+)', '\App\Controllers\TransactionController@update');

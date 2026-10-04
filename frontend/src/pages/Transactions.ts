@@ -6,6 +6,13 @@ import { showConfirm } from '../components/Modal';
 
 let currentEditId: string | null = null;
 
+// Función para obtener la fecha local exacta en formato YYYY-MM-DD
+function getLocalDateString(): string {
+    const today = new Date();
+    // Restamos los minutos de diferencia con UTC para forzar la hora local
+    const tzOffset = today.getTimezoneOffset() * 60000;
+    return new Date(today.getTime() - tzOffset).toISOString().split('T')[0];
+}
 
 export function renderTransactions(): string {
     return `
@@ -43,13 +50,13 @@ export function initTransactions() {
     const btnCancel = document.querySelector<HTMLButtonElement>('#btn-cancel-edit')!;
     const formTitle = document.querySelector<HTMLHeadingElement>('#form-title')!;
     
-    document.querySelector<HTMLInputElement>('#tx-date')!.valueAsDate = new Date();
+    document.querySelector<HTMLInputElement>('#tx-date')!.value = getLocalDateString();
 
     // CANCELAR EDICIÓN
     btnCancel.addEventListener('click', () => {
         currentEditId = null;
         form.reset();
-        document.querySelector<HTMLInputElement>('#tx-date')!.valueAsDate = new Date();
+        document.querySelector<HTMLInputElement>('#tx-date')!.value = getLocalDateString();
         formTitle.innerText = '🔄 Registrar Movimiento';
         btnSubmit.innerText = 'Ejecutar';
         btnSubmit.className = 'btn btn-success';
@@ -98,7 +105,13 @@ async function loadSelects() {
     document.querySelector<HTMLSelectElement>('#destination')!.innerHTML = accOpts;
 
     let catOpts = '<option value="">-- Categoría --</option>';
-    dataCat.data.forEach((c: Category) => catOpts += `<option value="${c.id}">${c.name}</option>`);
+    dataCat.data.forEach((c: Category) => {
+        let icon = '⚖️'; 
+        if (c.id_type === 1) icon = '📈'; // 1 = Ingreso
+        if (c.id_type === 2) icon = '📉'; // 2 = Gasto
+        
+        catOpts += `<option value="${c.id}">${icon} ${c.name}</option>`;
+    });
     document.querySelector<HTMLSelectElement>('#category')!.innerHTML = catOpts;
 }
 

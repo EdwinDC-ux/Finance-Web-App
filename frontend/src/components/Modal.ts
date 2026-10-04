@@ -68,3 +68,43 @@ export function showPrompt(title: string, defaultValue: string, onConfirm: (valu
     modalEl.addEventListener('hidden.bs.modal', () => modalEl.remove());
     modal.show();
 }
+
+export function showDatePrompt(title: string, defaultValue: string, onConfirm: (value: string) => void) {
+    const modalId = 'modal-' + Date.now();
+    const html = `
+        <div class="modal fade" id="${modalId}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title">📅 ${title}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <label class="form-label text-muted small">Selecciona la fecha en la que abriste el producto:</label>
+                        <input type="date" id="${modalId}-input" class="form-control" value="${defaultValue}">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-warning" id="${modalId}-btn">Guardar Fecha</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', html);
+    const modalEl = document.getElementById(modalId)!;
+    const inputEl = document.getElementById(`${modalId}-input`) as HTMLInputElement;
+    const modal = new bootstrap.Modal(modalEl);
+    
+    document.getElementById(`${modalId}-btn`)!.addEventListener('click', () => {
+        const val = inputEl.value.trim();
+        if (val) { 
+            modal.hide(); 
+            onConfirm(val); 
+        }
+    });
+
+    modalEl.addEventListener('shown.bs.modal', () => inputEl.focus());
+    modalEl.addEventListener('hidden.bs.modal', () => modalEl.remove());
+    modal.show();
+}

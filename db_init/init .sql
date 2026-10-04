@@ -46,6 +46,14 @@ CREATE TABLE CAT_CATEGORIAS (
     FOREIGN KEY (tipo_categoria_id) REFERENCES CAT_TIPOS_CATEGORIA(id)
 );
 
+CREATE TABLE CAT_PRODUCTOS (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    nombre VARCHAR(100) NOT NULL, -- Ej. 'Shampoo Head & Shoulders', 'Desodorante'
+    is_active BOOLEAN DEFAULT 1,
+    FOREIGN KEY (user_id) REFERENCES TBL_USUARIOS(id)
+);
+
 -- ==========================================
 -- 3.5 TABLA DE PRESUPUESTOS MENSUALES (El Modelo YNAB)
 -- ==========================================
@@ -99,6 +107,13 @@ CREATE TABLE TBL_HISTORICO_PATRIMONIO (
     UNIQUE KEY unique_user_month (user_id, snapshot_date)
 );
 
+CREATE TABLE TBL_CICLOS_PRODUCTO (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    producto_id INT NOT NULL,
+    fecha_inicio DATE NOT NULL,
+    FOREIGN KEY (producto_id) REFERENCES CAT_PRODUCTOS(id)
+);
+
 
 -- ==========================================
 -- 5. VISTAS (VIEWS)
@@ -109,7 +124,7 @@ SELECT
     t.id AS transaccion_id, t.amount AS monto, t.transaction_date AS fecha,
     DATE_FORMAT(t.transaction_date, '%Y-%m') AS mes_anio,
     t.origin_id, o.nombre AS cuenta_origen, t.destination_id, d.nombre AS cuenta_destino,
-    t.category_id, c.nombre AS categoria, g.nombre AS grupo_categoria, tc.nombre AS tipo_categoria,
+    t.category_id, c.nombre AS categoria, g.nombre AS grupo_categoria, tc.id AS tipo_categoria_id, tc.nombre AS tipo_categoria,
     t.description AS descripcion, t.is_cleared AS conciliado, t.payment_period AS periodo_pago,
     COALESCE(o.user_id, d.user_id) AS user_id 
 FROM TBL_TRANSACCIONES t
@@ -127,15 +142,13 @@ SELECT
     COALESCE((
         SELECT SUM(t.amount) FROM TBL_TRANSACCIONES t 
         WHERE t.category_id = c.id AND t.destination_id IS NULL AND t.is_active = 1
-            AND DATE_FORMAT(t.transaction_date, '%Y-%m') = DATE_FORMAT(pm.budget_month, '%Y-%m')
+          AND DATE_FORMAT(t.transaction_date, '%Y-%m') = DATE_FORMAT(pm.budget_month, '%Y-%m')
     ), 0) AS gastado
 FROM CAT_CATEGORIAS c
 JOIN CAT_GRUPOS_CATEGORIA g ON c.grupo_id = g.id
-JOIN CAT_TIPOS_CATEGORIA tc ON c.tipo_categoria_id = tc.id
 JOIN TBL_PRESUPUESTOS_MENSUALES pm ON c.id = pm.category_id
-WHERE tc.nombre = 'Gasto' 
-    AND c.is_active = 1
-    AND g.is_active = 1;
+WHERE c.tipo_categoria_id = 2 -- ¡TU SOLUCIÓN! (2 = Gasto)
+  AND c.is_active = 1 AND g.is_active = 1;
 
 -- ==========================================
 -- 6. STORED PROCEDURE (Actualizado a 3NF)

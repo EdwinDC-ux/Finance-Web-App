@@ -45,8 +45,7 @@ export function renderSettings(): string {
                         <select id="new-category-group" class="form-select m-0 w-auto" required><option value="">Grupo</option></select>
                         <input type="text" id="new-category-name" class="form-input m-0 flex-grow-1" placeholder="Nombre" required>
                         <select id="new-category-type" class="form-select m-0 w-auto" required>
-                            <option value="ingreso">Ingreso</option>
-                            <option value="gasto">Gasto</option>
+                            <option value="">-- Tipo --</option>
                         </select>
                         <input type="number" id="new-category-budget" class="form-input m-0 w-auto" placeholder="Límite Inicial $" step="0.01">
                         <button type="submit" id="btn-submit-category" class="btn btn-primary w-auto" style="background: #8e44ad;">Añadir</button>
@@ -73,7 +72,7 @@ export function initSettings() {
 
     // Lógica visual para Límite de Crédito
     typeAcc.addEventListener('change', () => {
-        if (typeAcc.options[typeAcc.selectedIndex].text.includes('Crédito')) {
+        if (typeAcc.value === '2') {
             limitAcc.style.display = 'block'; limitAcc.required = true;
         } else {
             limitAcc.style.display = 'none'; limitAcc.required = false; limitAcc.value = '';
@@ -136,7 +135,7 @@ export function initSettings() {
         e.preventDefault();
         const payload = {
             name: document.querySelector<HTMLInputElement>('#new-category-name')!.value,
-            type: document.querySelector<HTMLSelectElement>('#new-category-type')!.value,
+            tipo_categoria_id: parseInt(document.querySelector<HTMLSelectElement>('#new-category-type')!.value),
             grupo_id: parseInt(document.querySelector<HTMLSelectElement>('#new-category-group')!.value),
             budget_limit: parseFloat(budgetCat.value) || 0
         };
@@ -156,6 +155,7 @@ export function initSettings() {
     loadAccountsData();
     loadGroupsData();
     loadCategoriesData();
+    loadCategoryTypes();
 }
 
 // --- FUNCIONES DE CARGA Y EVENTOS DE TABLA ---
@@ -287,4 +287,16 @@ async function loadAccountTypes() {
         result.data.forEach((t: any) => opts += `<option value="${t.id}">${t.nombre}</option>`);
         document.querySelector<HTMLSelectElement>('#new-account-type')!.innerHTML = opts;
     }
+}
+
+async function loadCategoryTypes() {
+    try {
+        const res = await fetch('/api/category-types'); 
+        const result = await res.json();
+        if (result.status === 'success') {
+            let opts = '<option value="">-- Tipo --</option>';
+            result.data.forEach((t: any) => opts += `<option value="${t.id}">${t.nombre}</option>`);
+            document.querySelector<HTMLSelectElement>('#new-category-type')!.innerHTML = opts;
+        }
+    } catch (e) { console.error(e); }
 }

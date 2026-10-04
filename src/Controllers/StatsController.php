@@ -23,10 +23,10 @@ class StatsController {
             // USAMOS LA VISTA
             $sql = "SELECT categoria as category, SUM(monto) as total 
                     FROM VW_DETALLE_TRANSACCIONES 
-                    WHERE user_id = :user_id 
-                      AND destination_id IS NULL 
-                      AND tipo_categoria = 'Gasto'
-                      AND mes_anio = :mes
+                    WHERE user_id = :user_id
+                        AND destination_id IS NULL 
+                        AND tipo_categoria_id = 2 -- (2 = Gasto)
+                        AND mes_anio = :mes
                     GROUP BY categoria";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([':user_id' => $userId, ':mes' => $mesActual]);
@@ -43,13 +43,17 @@ class StatsController {
             $pdo = Database::getConnection();
             
             $sqlIncome = "SELECT COALESCE(SUM(monto), 0) FROM VW_DETALLE_TRANSACCIONES 
-                          WHERE user_id = :uid AND origin_id IS NULL AND tipo_categoria = 'Ingreso' AND mes_anio = :mes";
+                WHERE user_id = :uid AND origin_id IS NULL 
+                    AND tipo_categoria_id = 1 -- (1 = Ingreso)
+                    AND mes_anio = :mes";
             $stmtIn = $pdo->prepare($sqlIncome);
             $stmtIn->execute([':uid' => $userId, ':mes' => $mesActual]);
             $income = $stmtIn->fetchColumn();
 
             $sqlExpense = "SELECT COALESCE(SUM(monto), 0) FROM VW_DETALLE_TRANSACCIONES 
-                           WHERE user_id = :uid AND destination_id IS NULL AND tipo_categoria = 'Gasto' AND mes_anio = :mes";
+                WHERE user_id = :uid AND destination_id IS NULL 
+                    AND tipo_categoria_id = 2 -- (2 = Gasto)
+                    AND mes_anio = :mes";
             $stmtEx = $pdo->prepare($sqlExpense);
             $stmtEx->execute([':uid' => $userId, ':mes' => $mesActual]);
             $expense = $stmtEx->fetchColumn();

@@ -71,13 +71,15 @@ export function buildCategoriesTable(categories: any[]): string {
   let html = `<div class="table-responsive"><table class="data-table">
     <tr><th>Categoría</th><th>Grupo</th><th>Tipo</th><th class="text-center" style="width: 100px;">Acciones</th></tr>`;
   categories.forEach(c => {
-    const typeColor = c.type === 'Ingreso' ? 'text-success' : 'text-danger';
+    let typeColor = 'text-muted'; 
+    if (c.type === 'Ingreso') typeColor = 'text-success';
+    if (c.type === 'Gasto') typeColor = 'text-danger';
     html += `<tr>
       <td>${c.name}</td>
       <td><small class="text-muted">${c.grupo}</small></td>
       <td class="${typeColor} fw-bold"><small>${c.type}</small></td>
       <td class="text-center">
-        <button class="btn btn-sm btn-warning btn-edit-category" data-id="${c.id}" data-name="${c.name}" data-group="${c.grupo_id}" data-type="${c.type.toLowerCase()}">✏️</button>
+        <button class="btn btn-sm btn-warning btn-edit-category" data-id="${c.id}" data-name="${c.name}" data-group="${c.grupo_id}" data-type="${c.id_type}">✏️</button>
         <button class="btn btn-sm btn-danger btn-delete-category" data-id="${c.id}">🗑️</button>
       </td>
     </tr>`;

@@ -31,6 +31,7 @@ export interface Category {
     id: number;
     name: string;
     type: string;
+    id_type: number
 }
 
 export interface UserProfile {
@@ -49,4 +50,14 @@ export interface CreditCardStat {
     nombre: string;
     balance: string;
     credit_limit: string;
+}
+
+export interface ProductStat {
+    id: number;
+    nombre: string;
+    total_ciclos: number;
+    ultima_fecha: string | null;
+    promedio_dias: number;
+    anual_necesario: number;
+    status: string;
 }
