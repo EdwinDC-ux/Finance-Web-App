@@ -1,0 +1,15 @@
+# Ignorar dependencias locales (Docker las instalará adentro limpiamente)
+frontend/node_modules/
+vendor/
+
+# Ignorar archivos de control de versiones y respaldos
+.git/
+.gitignore
+*.sql
+
+# Ignorar entornos y temporales
+.env
+Dockerfile*
+docker-compose*
+README.md
+USER_MANUAL.md
