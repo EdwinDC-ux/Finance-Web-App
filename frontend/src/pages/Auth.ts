@@ -6,6 +6,11 @@ export function renderLogin(): string {
     return `
         <div class="auth-wrapper">
             <div class="auth-card">
+                <div class="text-center mb-3">
+                    <img src="/favicon.svg" width="64" height="64" alt="Vértice Capital" class="mb-2">
+                    <h4 class="fw-bold mt-2 text-dark">Vértice Capital</h4>
+                    <p class="text-muted small">Inteligencia y Libertad Financiera</p>
+                </div>
                 <h2>Iniciar Sesión</h2>
                 <form id="login-form">
                     <input type="email" id="login-email" class="form-input" placeholder="Correo" required>
@@ -57,6 +62,11 @@ export function renderRegister(): string {
     return `
         <div class="auth-wrapper">
             <div class="auth-card">
+                <div class="text-center mb-3">
+                    <img src="/favicon.svg" width="64" height="64" alt="Vértice Capital" class="mb-2">
+                    <h4 class="fw-bold mt-2 text-dark">Vértice Capital</h4>
+                    <p class="text-muted small">Crea tu cuenta de patrimonio</p>
+                </div>
                 <h2>Crear Cuenta</h2>
                 <form id="register-form">
                     <input type="email" id="register-email" class="form-input" placeholder="Correo" required>

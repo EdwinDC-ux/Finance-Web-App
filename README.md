@@ -1,4 +1,4 @@
-# 💰 FinanceSaaS (FIRE Edition) v1.0.0
+# 💰 Vértice Capital (FIRE Edition) v1.0.1
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.2-777BB4.svg?logo=php)

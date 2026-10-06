@@ -1,4 +1,4 @@
-# 📖 Manual de Usuario: FinanceSaaS (Edición FIRE)
+# 📖 Manual de Usuario: Vértice Capital (Edición FIRE)
 
 Bienvenido a tu **Motor de Inteligencia Financiera**. Esta plataforma fue construida con arquitectura de Partida Doble para ayudarte a diseñar y alcanzar tu **Libertad Financiera (Movimiento FIRE)**.
 
