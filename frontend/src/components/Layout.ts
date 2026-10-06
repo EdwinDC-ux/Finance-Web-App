@@ -6,16 +6,20 @@ export function renderLayout(): string {
             <div class="offcanvas-md offcanvas-start text-white d-flex flex-column flex-shrink-0 p-3" 
                 tabindex="-1" id="sidebarMenu" style="width: 250px; background-color: var(--text-main) !important; z-index: 1050;">
                 
-                <!-- Cabecera del menú (Solo visible en móvil) -->
+                <!-- Cabecera del menú (Móvil) -->
                 <div class="offcanvas-header d-md-none">
-                    <h5 class="offcanvas-title fw-bold">💰 FinanceSaaS</h5>
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="/favicon.svg" width="28" height="28" alt="Logo">
+                        <h5 class="offcanvas-title fw-bold m-0 text-white">Vértice Capital</h5>
+                    </div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu" aria-label="Close"></button>
                 </div>
-                
-                <!-- Cabecera del menú (Solo visible en desktop) -->
-                <a href="#" class="d-none d-md-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-                    <span class="fs-4 fw-bold">💰 FinanceSaaS</span>
-                </a>
+
+                <!-- Cabecera del menú (Desktop) -->
+                <div class="d-none d-md-flex align-items-center gap-2 mb-3 me-md-auto text-white">
+                    <img src="/favicon.svg" width="32" height="32" alt="Logo">
+                    <span class="fs-4 fw-bold">Vértice Capital</span>
+                </div>
                 <hr class="d-none d-md-block">
                 
                 <!-- Enlaces de Navegación -->
@@ -51,7 +55,10 @@ export function renderLayout(): string {
                 
                 <!-- NAVBAR MÓVIL (Menú de Hamburguesa, solo visible en celulares) -->
                 <nav class="navbar navbar-dark d-md-none px-3 flex-shrink-0" style="background-color: var(--text-main);">
-                    <a class="navbar-brand fw-bold" href="#">💰 FinanceSaaS</a>
+                    <a class="navbar-brand fw-bold d-flex align-items-center gap-2 m-0" href="#">
+                        <img src="/favicon.svg" width="24" height="24" alt="Logo">
+                        <span>Vértice Capital</span>
+                    </a>
                     <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
                         <span class="navbar-toggler-icon"></span>
                     </button>
