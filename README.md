@@ -1,49 +1,56 @@
-# 💰 Vértice Capital (FIRE Edition) v1.0.1
+# 💰 Vértice Capital (FIRE Edition) v1.0.2
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.2-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.2-777BB4.svg?logo=php)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1.svg?logo=mysql)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6.svg?logo=typescript)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker)
+![Cloudflare](https://img.shields.io/badge/Cloudflare-Zero_Trust-F38020.svg?logo=cloudflare)
 
-FinanceSaaS es una plataforma de inteligencia financiera diseñada bajo los principios del movimiento **FIRE (Financial Independence, Retire Early)**. 
+**Vértice Capital** es una plataforma web SaaS de inteligencia financiera diseñada bajo los principios del movimiento **FIRE (Financial Independence, Retire Early)**. 
 
-A diferencia de los rastreadores de gastos tradicionales, esta aplicación utiliza una arquitectura de **Partida Doble** y presupuestos **Base Cero Dinámicos (YNAB style)** para gestionar el flujo de caja, calcular la tasa de ahorro y proyectar el crecimiento del patrimonio neto.
+A diferencia de los gestores de gastos tradicionales, esta aplicación implementa un motor estricto de **Partida Doble** y presupuestos **Base Cero Dinámicos (filosofía YNAB)** para auditar el flujo de efectivo, automatizar fondos de amortización (provisiones), calcular la tasa de ahorro real y proyectar el crecimiento del patrimonio neto hacia la libertad financiera.
 
-📖 **[Ver el Manual de Usuario aquí](USER_MANUAL.md)**
-
----
-
-## 🏗️ Arquitectura y Tech Stack
-
-El proyecto está construido con una arquitectura desacoplada (SPA + REST API) y contenerizado para un despliegue predecible.
-
-* **Infraestructura:** Docker & Docker Compose (Multi-container) con zonas horarias configuradas.
-* **Base de Datos:** MySQL 8.0.
-  * Normalizada a **3NF** (Tercera Forma Normal).
-  * Implementación estricta de **Soft Deletes** (`is_active`) para mantener la integridad referencial.
-  * Lógica de negocio delegada a **Stored Procedures** (Transacciones ACID y Reversas).
-  * Consultas complejas encapsuladas en **Vistas (Views)**.
-* **Backend (API):** PHP 8.2 (Vanilla, Arquitectura MVC, PSR-4 Autoloading, Bramus Router).
-* **Frontend (SPA):** TypeScript, Vite, Bootstrap 5, Chart.js.
-  * Enrutamiento del lado del cliente (History API).
-  * Diseño Mobile-First con Offcanvas Sidebar.
+📖 **[Consultar el Manual de Usuario aquí](USER_MANUAL.md)**
 
 ---
 
-## 🚀 Instalación y Entorno de Desarrollo
+## 🏗️ Arquitectura y Pila Tecnológica
+
+El sistema utiliza una arquitectura completamente desacoplada (Frontend SPA estático + Backend REST API sin estado):
+
+* **Infraestructura:** VPS en la nube (OVHcloud) orquestado con Docker y Docker Compose.
+* **Seguridad de Red:** Conexión perimetral sin puertos de entrada abiertos mediante **Cloudflare Tunnel (Zero Trust)** y certificados SSL administrados en el borde bajo dominio con HSTS forzado (`.app`).
+* **Base de Datos:** MySQL 8.0 normalizada a **Tercera Forma Normal (3NF)**.
+  * Implementación transversal de **Soft Deletes** (`is_active`) para integridad referencial histórica.
+  * Lógica transaccional delegada al motor mediante **Stored Procedures** ACID (`sp_transferir_fondos`, `sp_reversar_transaccion`).
+  * Consultas analíticas y de presupuestos optimizadas en **Vistas SQL** (`VW_DETALLE_TRANSACCIONES`, `VW_CONTROL_PRESUPUESTOS`).
+* **Backend:** PHP 8.2 en contenedor Apache.
+  * Arquitectura MVC / API First orientada a controladores.
+  * Enrutador ligero RESTful (Bramus Router) y autocarga PSR-4 con Composer.
+  * Variables de entorno leídas de forma segura vía `Dotenv`.
+* **Frontend:** Single Page Application (SPA) modular construida con TypeScript Vanilla y empaquetada con **Vite**.
+  * Enrutamiento del lado del cliente basado en la API de History (`pushState`/`popstate`).
+  * Sistema de diseño responsivo basado en Bootstrap 5 (Layout con Sidebar Offcanvas y Design Tokens en CSS).
+  * Visualización analítica de datos mediante **Chart.js** (gráficas de dona y líneas temporales).
+
+---
+
+## 🚀 Entorno de Desarrollo Local
+
+Sigue estos pasos para ejecutar el proyecto en tu máquina de desarrollo con recarga en vivo (Hot Module Replacement):
 
 ### 1. Requisitos Previos
-* Docker Desktop instalado y corriendo.
+* [Docker Desktop](https://www.docker.com/products/docker-desktop) instalado y activo.
 * Git instalado.
 
 ### 2. Clonar el repositorio
 ```bash
-git clone https://github.com/tu-usuario/finance-app.git
-cd finance-app
+git clone https://github.com/tu-usuario/Finance-Web-App.git
+cd Finance-Web-App
 ```
 
-### 3. Configurar Variables de Entorno
+### 3. Configuración de Variables de Entorno
 Crea un archivo `.env` en la raíz del proyecto:
 ```env
 DB_HOST=db
@@ -53,30 +60,49 @@ DB_PASS=app_password
 DB_ROOT_PASS=root_super_secreto
 ```
 
-### 4. Levantar los Contenedores
+### 4. Iniciar los Contenedores de Desarrollo
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
-*(Nota: MySQL ejecutará automáticamente el archivo `db_init/init.sql` para crear las tablas, vistas y stored procedures).*
+*(MySQL ejecutará automáticamente el script inicial `db_init/init.sql` durante el primer arranque).*
 
 ### 5. Instalar Dependencias del Frontend
 ```bash
-docker-compose exec frontend npm install
+docker compose exec frontend npm install
 ```
 
-### 6. ¡Listo!
-* **Frontend (Vite con Hot Reload):** [http://localhost:5173](http://localhost:5173)
-* **Backend API (PHP):** [http://localhost:8000/api/](http://localhost:8000/api/)
+### 6. Puntos de Acceso Local
+* **Frontend SPA (Vite Dev Server):** [http://localhost:5173](http://localhost:5173)
+* **Backend API (Apache/PHP):** [http://localhost:8000/api/](http://localhost:8000/api/)
 
 ---
 
-## 📦 Despliegue a Producción (Build)
+## 📦 Despliegue en Producción (Cloud VPS)
 
-Para compilar la aplicación y prepararla para un servidor de producción:
+La versión de producción utiliza una compilación multi-etapa (**Docker Multi-Stage Build**) que ejecuta Node temporalmente para compilar TypeScript/CSS, desecha las herramientas de desarrollo y monta los artefactos estáticos dentro de un contenedor optimizado de Apache/PHP.
 
-1. Ejecuta el build del frontend dentro del contenedor:
-```bash
-docker-compose exec frontend npm run build
-```
-2. Vite compilará el TypeScript y generará los archivos estáticos directamente en la carpeta `/public`.
-3. La aplicación completa será servida por Apache en el puerto 80: [http://localhost:8000](http://localhost:8000).
+### Pasos para Despliegue:
+
+1. **Construir y levantar servicios productivos:**
+   ```bash
+   docker compose -f docker-compose.prod.yml up -d --build
+   ```
+2. **Restaurar base de datos productiva (si aplica):**
+   ```bash
+   docker compose -f docker-compose.prod.yml exec -T db mysql -u root -p${DB_ROOT_PASS} finance_db < backup.sql
+   ```
+3. **Conectar el túnel seguro de Cloudflare:**
+   ```bash
+   docker run -d --network host --restart=always cloudflare/cloudflared:latest tunnel --no-autoupdate run --token TU_TOKEN_DE_CLOUDFLARE
+   ```
+
+---
+
+## 🛡️ Seguridad y Buenas Prácticas (v1.0.2)
+
+* **Zero Open Inbound Ports:** En producción, el servicio web de Apache escucha exclusivamente en la interfaz local (`127.0.0.1:80`), impidiendo el acceso directo a la IP pública del VPS y canalizando el 100% del tráfico por el túnel cifrado de Cloudflare.
+* **Firewall Perimetral (UFW):** Política estricta de denegación de tráfico entrante a nivel de sistema operativo en Linux, permitiendo únicamente el puerto administrativo SSH.
+* **Protección contra Fuerza Bruta:** Monitoreo activo de conexiones no autorizadas e intentos fallidos de autenticación en el puerto 22 gestionado por **Fail2ban**.
+* **Cifrado de Credenciales:** Autenticación protegida con hashes generados mediante el algoritmo nativo `BCRYPT`.
+* **Aislamiento Multi-Tenant:** Toda consulta de lectura y escritura valida la identidad de sesión del usuario en sesión (`user_id`).
+* **Privacidad de Dominio:** Datos personales ocultos mediante WHOIS Redaction y firmas criptográficas anti-suplantación activas vía DNSSEC.
