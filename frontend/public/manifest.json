@@ -1,0 +1,18 @@
+{
+    "name": "Vértice Capital",
+    "short_name": "Vértice",
+    "description": "Inteligencia Financiera y Gestión Patrimonial FIRE",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#2c3e50",
+    "theme_color": "#2c3e50",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/favicon.svg",
+            "sizes": "192x192 512x512",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+}
