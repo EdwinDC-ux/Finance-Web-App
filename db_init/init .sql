@@ -12,7 +12,7 @@ CREATE TABLE CAT_TIPOS_CATEGORIA (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL UNIQUE
 );
-INSERT INTO CAT_TIPOS_CATEGORIA (nombre) VALUES ('Ingreso'), ('Gasto');
+INSERT INTO CAT_TIPOS_CATEGORIA (nombre) VALUES ('Ingreso'), ('Gasto'), ('Variación Patrimonial');
 
 -- ==========================================
 -- 2. TABLAS CORE (Usuarios)

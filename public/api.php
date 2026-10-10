@@ -8,6 +8,10 @@ $dotenv->load();
 
 $router = new \Bramus\Router\Router();
 
+$router->get('/', function() {
+    echo "Bienvenido a la API de Vértice Capital";
+});
+
 // Auth
 $router->post('/api/login', '\App\Controllers\AuthController@login');
 $router->post('/api/register', '\App\Controllers\AuthController@register');

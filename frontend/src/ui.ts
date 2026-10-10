@@ -8,6 +8,7 @@ import { renderBudgets, initBudgets } from './pages/Budgets';
 import { render404, init404 } from './pages/Error404';
 import { validateSession } from './auth';
 import { renderInventory, initInventory } from './pages/Inventory';
+import { renderHelp, initHelp } from './pages/Help';
 
 let layoutRendered = false;
 
@@ -41,6 +42,7 @@ export function showView(view: string, pushState: boolean = true) {
         case 'transactions': content.innerHTML = renderTransactions(); initTransactions(); break;
         case 'settings': content.innerHTML = renderSettings(); initSettings(); break;
         case 'inventory': content.innerHTML = renderInventory(); initInventory(); break;
+        case 'help': content.innerHTML = renderHelp(); initHelp(); break;
         case '404':
         default:
             content.innerHTML = render404();
@@ -56,4 +58,5 @@ function initNavigation() {
     document.querySelector('#nav-settings')?.addEventListener('click', (e) => { e.preventDefault(); showView('settings'); });
     document.querySelector('#nav-logout')?.addEventListener('click', async (e) => { e.preventDefault(); await fetch('/api/logout', { method: 'POST' }); validateSession(); });
     document.querySelector('#nav-inventory')?.addEventListener('click', (e) => { e.preventDefault(); showView('inventory'); });
+    document.querySelector('#nav-help')?.addEventListener('click', (e) => { e.preventDefault(); showView('help'); });
 }

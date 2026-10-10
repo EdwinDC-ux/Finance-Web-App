@@ -1,6 +1,7 @@
 import { type Account, type BudgetStat, type CreditCardStat } from '../types';
-import Chart from 'chart.js/auto';
+import { showPrompt } from '../components/Modal';
 import { showToast } from '../components/Toast';
+import Chart from 'chart.js/auto';
 
 export function renderDashboard(): string {
     return `
@@ -65,13 +66,40 @@ let expenseChart: Chart | null = null;
 let netWorthChart: Chart | null = null;
 
 export function initDashboard() {
-    document.querySelector('#edit-fire-btn')?.addEventListener('click', async (e) => {
+    // EVENTO: EDITAR META FIRE CON MODAL DE BOOTSTRAP
+    document.querySelector('#edit-fire-btn')?.addEventListener('click', (e) => {
         e.preventDefault();
-        const newTarget = prompt("Ingresa tu nueva Meta FIRE (ej. 5000000):");
-        if (newTarget && !isNaN(parseFloat(newTarget))) {
-            await fetch('/api/user/fire-target', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fire_target: parseFloat(newTarget) }) });
-            loadDashboardData(); 
-        }
+        
+        // Obtenemos la meta actual para sugerirla en el modal
+        const currentText = document.querySelector<HTMLSpanElement>('#fire-target-display')?.innerText || '$0.00';
+        const currentClean = currentText.replace(/[^0-9.]/g, ''); // Limpiamos signos de pesos y comas
+
+        showPrompt("Actualizar Meta FIRE ($)", currentClean, async (newTarget) => {
+            const parsed = parseFloat(newTarget);
+            
+            if (isNaN(parsed) || parsed < 0) {
+                showToast('Ingresa un monto válido', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/user/fire-target', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fire_target: parsed })
+                });
+                const result = await res.json();
+                
+                if (result.status === 'success') {
+                    showToast('Meta FIRE actualizada con éxito', 'success');
+                    loadDashboardData(); // Recargamos para que la barra se recalcule
+                } else {
+                    showToast(result.message, 'error');
+                }
+            } catch (error) {
+                showToast('Error de conexión', 'error');
+            }
+        });
     });
 
     loadDashboardData();
@@ -209,32 +237,40 @@ async function loadCreditCards() {
             let html = '';
             result.data.forEach((cc: CreditCardStat) => {
                 const limit = parseFloat(cc.credit_limit);
-                // En partida doble, si gastas con TC, el saldo se vuelve negativo. 
-                // Tomamos el valor absoluto para saber la deuda real.
                 const debt = Math.abs(parseFloat(cc.balance)); 
+                const pending = parseFloat(cc.pending_to_separate);
+
                 let percentage = (debt / limit) * 100;
                 if (percentage > 100) percentage = 100;
 
-                // Semáforo de deuda: Verde (<30%), Amarillo (<70%), Rojo (>70%)
-                let colorClass = 'background-color: var(--color-success);'; 
-                if (percentage >= 30) colorClass = 'background-color: var(--color-warning);'; 
-                if (percentage >= 70) colorClass = 'background-color: var(--color-danger);'; 
+                // Semáforo de endeudamiento
+                let colorClass = 'var(--color-success)'; 
+                if (percentage >= 30) colorClass = 'var(--color-warning)'; 
+                if (percentage >= 70) colorClass = 'var(--color-danger)'; 
+
+                // LA ALERTA INTELIGENTE
+                const pendingBadge = pending > 0 
+                    ? `<span class="badge text-dark" style="font-size: 0.8rem; padding: 5px 10px;">⚠️ Falta apartar: $${pending.toLocaleString('es-MX', {minimumFractionDigits: 2})}</span>` 
+                    : `<span class="badge" style="font-size: 0.8rem; padding: 5px 10px;">Cuenta al día ✅</span>`;
 
                 html += `
-                    <div style="margin-bottom: 15px;">
-                        <div class="flex-between" style="font-size: 0.9rem; margin-bottom: 5px;">
+                    <div style="margin-bottom: 20px;">
+                        <div class="flex-between" style="font-size: 0.95rem; margin-bottom: 6px;">
                             <strong>${cc.nombre}</strong>
-                            <span>$${debt.toLocaleString('es-MX')} / $${limit.toLocaleString('es-MX')}</span>
+                            <span>$${debt.toLocaleString('es-MX', {minimumFractionDigits: 2})} / $${limit.toLocaleString('es-MX')}</span>
                         </div>
-                        <div style="width: 100%; background: #ecf0f1; height: 10px; border-radius: 5px; overflow: hidden;">
-                            <div style="width: ${percentage}%; height: 100%; transition: width 0.5s ease; ${colorClass}"></div>
+                        <div style="width: 100%; background: #ecf0f1; height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 8px;">
+                            <div style="width: ${percentage}%; height: 100%; background-color: ${colorClass}; transition: width 0.5s ease;"></div>
+                        </div>
+                        <div class="text-end">
+                            ${pendingBadge}
                         </div>
                     </div>
                 `;
             });
             container.innerHTML = html;
-        } else {
-            showToast(result.message, 'error');
         }
-    } catch (error) { console.error("Error cargando tarjetas:", error); }
+    } catch (error) {
+        console.error("Error cargando tarjetas:", error);
+    }
 }

@@ -47,9 +47,11 @@ export interface BudgetStat {
 }
 
 export interface CreditCardStat {
+    id: number;
     nombre: string;
     balance: string;
     credit_limit: string;
+    pending_to_separate: string;
 }
 
 export interface ProductStat {
