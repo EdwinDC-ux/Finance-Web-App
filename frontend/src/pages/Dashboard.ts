@@ -1,6 +1,7 @@
 import { type Account, type BudgetStat, type CreditCardStat } from '../types';
-import Chart from 'chart.js/auto';
+import { showPrompt } from '../components/Modal';
 import { showToast } from '../components/Toast';
+import Chart from 'chart.js/auto';
 
 export function renderDashboard(): string {
     return `
@@ -65,13 +66,40 @@ let expenseChart: Chart | null = null;
 let netWorthChart: Chart | null = null;
 
 export function initDashboard() {
-    document.querySelector('#edit-fire-btn')?.addEventListener('click', async (e) => {
+    // EVENTO: EDITAR META FIRE CON MODAL DE BOOTSTRAP
+    document.querySelector('#edit-fire-btn')?.addEventListener('click', (e) => {
         e.preventDefault();
-        const newTarget = prompt("Ingresa tu nueva Meta FIRE (ej. 5000000):");
-        if (newTarget && !isNaN(parseFloat(newTarget))) {
-            await fetch('/api/user/fire-target', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fire_target: parseFloat(newTarget) }) });
-            loadDashboardData(); 
-        }
+        
+        // Obtenemos la meta actual para sugerirla en el modal
+        const currentText = document.querySelector<HTMLSpanElement>('#fire-target-display')?.innerText || '$0.00';
+        const currentClean = currentText.replace(/[^0-9.]/g, ''); // Limpiamos signos de pesos y comas
+
+        showPrompt("Actualizar Meta FIRE ($)", currentClean, async (newTarget) => {
+            const parsed = parseFloat(newTarget);
+            
+            if (isNaN(parsed) || parsed < 0) {
+                showToast('Ingresa un monto válido', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/user/fire-target', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fire_target: parsed })
+                });
+                const result = await res.json();
+                
+                if (result.status === 'success') {
+                    showToast('Meta FIRE actualizada con éxito', 'success');
+                    loadDashboardData(); // Recargamos para que la barra se recalcule
+                } else {
+                    showToast(result.message, 'error');
+                }
+            } catch (error) {
+                showToast('Error de conexión', 'error');
+            }
+        });
     });
 
     loadDashboardData();
