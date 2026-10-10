@@ -222,8 +222,8 @@ async function loadCreditCards() {
 
                 // LA ALERTA INTELIGENTE
                 const pendingBadge = pending > 0 
-                    ? `<span class="badge bg-warning text-dark" style="font-size: 0.8rem; padding: 5px 10px;">⚠️ Falta apartar: $${pending.toLocaleString('es-MX', {minimumFractionDigits: 2})}</span>` 
-                    : `<span class="badge bg-success" style="font-size: 0.8rem; padding: 5px 10px;">Cuenta al día ✅</span>`;
+                    ? `<span class="badge text-dark" style="font-size: 0.8rem; padding: 5px 10px;">⚠️ Falta apartar: $${pending.toLocaleString('es-MX', {minimumFractionDigits: 2})}</span>` 
+                    : `<span class="badge" style="font-size: 0.8rem; padding: 5px 10px;">Cuenta al día ✅</span>`;
 
                 html += `
                     <div style="margin-bottom: 20px;">
