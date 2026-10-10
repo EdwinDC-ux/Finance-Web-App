@@ -39,6 +39,9 @@ export function renderLayout(): string {
                     <li class="nav-item mb-2">
                         <a href="#" id="nav-settings" class="nav-link text-white" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu">⚙️ Configuración</a>
                     </li>
+                    <li class="nav-item mb-2">
+                        <a href="#" id="nav-help" class="nav-link text-white" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu">📖 Ayuda</a>
+                    </li>
                 </ul>
                 
                 <hr>
