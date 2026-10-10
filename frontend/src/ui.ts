@@ -58,4 +58,5 @@ function initNavigation() {
     document.querySelector('#nav-settings')?.addEventListener('click', (e) => { e.preventDefault(); showView('settings'); });
     document.querySelector('#nav-logout')?.addEventListener('click', async (e) => { e.preventDefault(); await fetch('/api/logout', { method: 'POST' }); validateSession(); });
     document.querySelector('#nav-inventory')?.addEventListener('click', (e) => { e.preventDefault(); showView('inventory'); });
+    document.querySelector('#nav-help')?.addEventListener('click', (e) => { e.preventDefault(); showView('help'); });
 }
