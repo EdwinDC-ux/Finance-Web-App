@@ -209,32 +209,40 @@ async function loadCreditCards() {
             let html = '';
             result.data.forEach((cc: CreditCardStat) => {
                 const limit = parseFloat(cc.credit_limit);
-                // En partida doble, si gastas con TC, el saldo se vuelve negativo. 
-                // Tomamos el valor absoluto para saber la deuda real.
                 const debt = Math.abs(parseFloat(cc.balance)); 
+                const pending = parseFloat(cc.pending_to_separate);
+
                 let percentage = (debt / limit) * 100;
                 if (percentage > 100) percentage = 100;
 
-                // Semáforo de deuda: Verde (<30%), Amarillo (<70%), Rojo (>70%)
-                let colorClass = 'background-color: var(--color-success);'; 
-                if (percentage >= 30) colorClass = 'background-color: var(--color-warning);'; 
-                if (percentage >= 70) colorClass = 'background-color: var(--color-danger);'; 
+                // Semáforo de endeudamiento
+                let colorClass = 'var(--color-success)'; 
+                if (percentage >= 30) colorClass = 'var(--color-warning)'; 
+                if (percentage >= 70) colorClass = 'var(--color-danger)'; 
+
+                // LA ALERTA INTELIGENTE
+                const pendingBadge = pending > 0 
+                    ? `<span class="badge text-dark" style="font-size: 0.8rem; padding: 5px 10px;">⚠️ Falta apartar: $${pending.toLocaleString('es-MX', {minimumFractionDigits: 2})}</span>` 
+                    : `<span class="badge" style="font-size: 0.8rem; padding: 5px 10px;">Cuenta al día ✅</span>`;
 
                 html += `
-                    <div style="margin-bottom: 15px;">
-                        <div class="flex-between" style="font-size: 0.9rem; margin-bottom: 5px;">
+                    <div style="margin-bottom: 20px;">
+                        <div class="flex-between" style="font-size: 0.95rem; margin-bottom: 6px;">
                             <strong>${cc.nombre}</strong>
-                            <span>$${debt.toLocaleString('es-MX')} / $${limit.toLocaleString('es-MX')}</span>
+                            <span>$${debt.toLocaleString('es-MX', {minimumFractionDigits: 2})} / $${limit.toLocaleString('es-MX')}</span>
                         </div>
-                        <div style="width: 100%; background: #ecf0f1; height: 10px; border-radius: 5px; overflow: hidden;">
-                            <div style="width: ${percentage}%; height: 100%; transition: width 0.5s ease; ${colorClass}"></div>
+                        <div style="width: 100%; background: #ecf0f1; height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 8px;">
+                            <div style="width: ${percentage}%; height: 100%; background-color: ${colorClass}; transition: width 0.5s ease;"></div>
+                        </div>
+                        <div class="text-end">
+                            ${pendingBadge}
                         </div>
                     </div>
                 `;
             });
             container.innerHTML = html;
-        } else {
-            showToast(result.message, 'error');
         }
-    } catch (error) { console.error("Error cargando tarjetas:", error); }
+    } catch (error) {
+        console.error("Error cargando tarjetas:", error);
+    }
 }

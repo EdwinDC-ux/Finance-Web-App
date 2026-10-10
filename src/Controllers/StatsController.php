@@ -119,10 +119,15 @@ class StatsController {
         $userId = $this->checkAuth();
         try {
             $pdo = \App\Core\Database::getConnection();
-            // Buscamos cuentas de Crédito (tipo_cuenta_id = 2) que tengan un límite asignado
-            $sql = "SELECT nombre, balance, credit_limit 
-                    FROM TBL_CUENTAS 
-                    WHERE user_id = :uid AND tipo_cuenta_id = 2 AND credit_limit > 0";
+            // Calculamos la deuda real y sumamos las transacciones con is_cleared = 0
+            $sql = "SELECT c.id, c.nombre, c.balance, c.credit_limit,
+                            COALESCE((
+                                SELECT SUM(amount) 
+                                FROM TBL_TRANSACCIONES 
+                                WHERE origin_id = c.id AND is_cleared = 0 AND is_active = 1
+                            ), 0) AS pending_to_separate
+                    FROM TBL_CUENTAS c 
+                    WHERE c.user_id = :uid AND c.tipo_cuenta_id = 2 AND c.credit_limit > 0 AND c.is_active = 1";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([':uid' => $userId]);
             
