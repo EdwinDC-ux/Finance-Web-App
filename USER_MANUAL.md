@@ -1,48 +1,66 @@
-# 📖 Manual de Usuario: Vértice Capital (Edición FIRE)
+# 📖 Manual de Usuario: Vértice Capital (Edición FIRE) v1.1.0
 
-Bienvenido a tu **Motor de Inteligencia Financiera**. Esta plataforma fue construida con arquitectura de Partida Doble para ayudarte a diseñar y alcanzar tu **Libertad Financiera (Movimiento FIRE)**.
-
----
-
-## ⚙️ 1. Configuración Inicial (Tu primer día)
-Dirígete a la pestaña **⚙️ Configuración** para crear la estructura de tu imperio.
-
-1. **Crea tus Grupos:** Agrupa tu vida financiera (Ej. *Vivienda, Alimentación, Inversiones*).
-2. **Crea tus Categorías:** Asigna categorías a esos grupos (Ej. *Sueldo, Despensa, GBM*). Define si son de tipo `Ingreso` o `Gasto`.
-3. **Crea tus Cuentas:** Registra dónde vive tu dinero físicamente. 
-   * **Débito/Efectivo:** Para tu banco (Ej. *Cajita Nu*) y tu efectivo físico (Ej. *Billetera*).
-   * **Crédito:** Para tus tarjetas. El sistema te pedirá tu *Límite de Crédito* para monitorear tu nivel de endeudamiento.
+Bienvenido a tu **Motor de Inteligencia Financiera**. Esta plataforma fue construida con arquitectura de Partida Doble para ayudarte a planificar, auditar y acelerar tu **Libertad Financiera (Movimiento FIRE)**.
 
 ---
 
-## 🚦 2. El Presupuesto (El inicio de mes)
-El día 1 de cada mes, ve a la pestaña **🚦 Presupuestos**. Aquí aplicamos el modelo de "Sobres de Dinero" (Base Cero Dinámico).
+## 📱 1. Instalación en tu Celular (Modo PWA)
+Vértice Capital es una aplicación instalable que corre a pantalla completa sin barras de navegación:
 
-* **Asignar Límite:** Selecciona una categoría de gasto y asígnale un límite para *este mes en específico*.
-* **El Botón Mágico (Clonar):** Haz clic en **"Copiar Mes Anterior"** para que la plataforma clone todos tus límites del mes pasado al mes actual en un segundo.
-
----
-
-## 📜 3. Registrar Movimientos (El día a día)
-Ve a la pestaña **📜 Movimientos**. Todo dinero tiene un origen y un destino.
-
-* 📈 **Ingreso (Ej. Sueldo):** Origen = `-- Externo --` | Destino = `Cajita Nu`
-* 📉 **Gasto (Ej. Tacos):** Origen = `Billetera` | Destino = `-- Externo --`
-* 🔄 **Inversión (Ej. Comprar ETFs):** Origen = `Cajita Nu` | Destino = `GBM` *(Tu patrimonio no baja, solo cambia de lugar).*
-
-### 💡 Hacks Contables Avanzados:
-* **El Check de "Liquidado" (✅/⏳):** Úsalo para las Tarjetas de Crédito. Si compras algo hoy, déjalo pendiente (⏳). Cuando pagues la tarjeta a fin de mes, dale clic al icono para marcarlo como liquidado (✅).
-* **Periodo de Pago:** Si compras a Meses Sin Intereses o tarjeteas para el próximo mes, pon el mes de pago en el formulario. El movimiento aparecerá en tu historial de ese mes para recordarte pagarlo.
-* **Gastos de Terceros (Préstamos):** Crea una cuenta llamada `Préstamos Familia`. Si pagas algo por ellos, transfiere de tu Tarjeta a esa cuenta. Cuando te paguen, transfiere de regreso. Tu patrimonio nunca se verá afectado.
+* **En Android (Chrome / Brave):** Entra a `https://app.vertice-capital.app`, abre el menú de los 3 puntos y selecciona **"Instalar aplicación"** o toca el banner emergente.
+* **En iPhone (Safari):** Entra a `https://app.vertice-capital.app`, toca el botón de **Compartir** (icono con la flecha hacia arriba) y selecciona **"Agregar al inicio"**.
 
 ---
 
-## 📊 4. El Dashboard (Tu Centro de Mando)
-Esta es tu vista de Director General.
+## ⚙️ 2. Configuración Inicial
+Dirígete a la pestaña **⚙️ Configuración** para estructurar tu información:
 
-* **Patrimonio Neto (Net Worth):** La suma de todo lo que tienes (Activos) menos lo que debes (Pasivos).
-* **Progreso FIRE:** Haz clic en `✏️ Editar` y pon tu meta de retiro. La barra te dirá a qué porcentaje de tu libertad estás.
-* **Crecimiento Histórico:** Una gráfica de líneas que guarda una "foto" de tu patrimonio cada mes para que veas tu evolución.
-* **Tasa de Ahorro (Savings Rate):** El indicador más importante. Si ganas $100 y gastas $70, tu tasa es del 30%. *Mantenla siempre arriba del 20%.*
-* **Semáforo de Presupuestos:** Vigila las barras de tus categorías (Verde, Amarillo, Rojo).
-* **Tarjetas de Crédito:** Te muestra tu deuda actual vs tu límite de crédito. Mantenla en verde (menos del 30% de uso) para un Score Crediticio perfecto.
+1. **Grupos:** Agrupa tus áreas de gasto (Ej. *Vivienda, Alimentación, Movilidad, Ocio*).
+2. **Categorías:** Asigna categorías dentro de cada grupo (Ej. *Despensa, Combustible, Streaming*). Define si son de tipo `Ingreso`, `Gasto` o `Variación` (ajustes que no alteran el flujo operativo).
+3. **Cuentas:** Registra dónde vive tu dinero físicamente:
+   * **Débito/Efectivo:** Para cuentas bancarias operativas y efectivo en mano (*Billetera*).
+   * **Crédito:** Para tus tarjetas. Asigna tu **Límite de Crédito** para activar el semáforo de endeudamiento.
+   * **Inversión:** Para fondos bloqueados o de largo plazo (*GBM, Cetes, PPR*).
+
+---
+
+## 🚦 3. Presupuestos Dinámicos (Inicio de Mes)
+El día 1 de cada mes, ve a la pestaña **🚦 Presupuestos**:
+
+* **Asignar Límite:** Selecciona una categoría y define su techo de gasto para el mes en curso.
+* **Clonar Mes Anterior:** Si tus gastos son estables, presiona **"Copiar Mes Anterior"** para duplicar toda la planeación del mes pasado en un solo clic.
+
+---
+
+## 📜 4. Registro de Movimientos
+En la pestaña **📜 Movimientos** registras la actividad diaria con Partida Doble:
+
+* 📈 **Ingreso (Sueldo/Ventas):** Origen = `-- Externo --` ➔ Destino = `Tu Cuenta de Débito`.
+* 📉 **Gasto Corriente:** Origen = `Tu Cuenta` ➔ Destino = `-- Externo --`.
+* 🔄 **Inversión/Transferencia:** Origen = `Cuenta Débito` ➔ Destino = `Cuenta Inversión`. *(El patrimonio no baja; se transforma).*
+
+### Hacks de Uso Diario:
+* **El Check de Conciliación (✅ / ⏳):** Cuando gastas con tarjeta de crédito, déjalo en relojito (⏳). Cuando muevas físicamente ese dinero a tu cajita de ahorro para respaldar el pago, haz clic en el relojito para marcarlo con palomita (✅).
+* **Gastos de Terceros (Préstamos):** Crea una cuenta llamada `Préstamos Familia`. Si pagas algo por ellos, el destino es esa cuenta. Cuando te lo paguen, transfieres de regreso. Tu patrimonio neto nunca se altera.
+
+---
+
+## 📦 5. Inventario Predictivo (Tracker de Productos)
+Ubicado en la pestaña **📦 Inventario**. Diseñado para la compra inteligente por volumen a inicio de año:
+
+1. **Añadir Producto:** Da de alta artículos de consumo periódico (Ej. *Shampoo, Desodorante, Pasta Dental*).
+2. **Registrar Ciclo:** Cada vez que abras un envase nuevo, haz clic en **"🔄 Abrí uno nuevo"** e indica la fecha de apertura en el calendario.
+3. **Proyección Anual:** A partir de la segunda apertura, la app calcula la duración promedio en días de cada unidad y te indica exactamente **cuántas piezas debes comprar al año** para abastecerte en enero y ganarle a la inflación.
+
+---
+
+## 📊 6. El Dashboard Ejecutivo
+Tu centro de comando para la toma de decisiones:
+
+* **Patrimonio Neto:** La suma de todos tus activos menos todas tus deudas.
+* **Progreso FIRE:** Haz clic en `✏️ Editar` para ajustar tu número de retiro. La barra calcula tu porcentaje actual de libertad.
+* **Crecimiento Histórico:** Gráfica de líneas que toma una captura automática mensual de tu riqueza.
+* **Tasa de Ahorro:** Calculada como `(Ingresos - Gastos) / Ingresos`. Mantenla por encima del 20%.
+* **Semáforo de Tarjetas de Crédito:** Muestra tu porcentaje de uso del límite crediticio y la alerta inteligente:
+  * 🟡 **`⚠️ Falta apartar: $X.XX`**: Compras en tarjeta que aún no respaldas en tus cajitas.
+  * 🟢 **`Cajita al día ✅`**: Todo el gasto crediticio está asegurado con dinero físico.
